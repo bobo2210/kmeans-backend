@@ -1,13 +1,30 @@
-from fastapi import FastAPI
+from flask import Flask
+from flask_restful import Api, Resource
 
-# Erstelle eine FastAPI-Instanz
-app = FastAPI()
+CFG_PORT = 5000
+app = Flask(__name__)
+api = Api(app)
 
-# Definiere eine Route für die Wurzel-URL ("/"), die "Hello, World!" zurückgibt
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+class HelloWorld(Resource):
+    """
+    Test API Endpoint
+    """
+    def get(self):
+        """
+        Getter for hello world
+        """
 
+1 hour ago
 
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000)
+update
+        data = {"data": "test2"}
+13 hours ago
+
+first commit
+
+        return data
+
+api.add_resource(HelloWorld,'/hello')
+
+if __name__=='__main__':
+    app.run(host="0.0.0.0", port=CFG_PORT)
