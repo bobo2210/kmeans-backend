@@ -14,7 +14,7 @@ class HelloWorld(Resource):
         Getter for hello world
         """
 
-        data = "test2"
+        data = {"data": "test2"}
 
         return data
 
