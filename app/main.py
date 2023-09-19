@@ -14,7 +14,7 @@ class HelloWorld(Resource):
         Getter for hello world
         """
 
-        data = {"data": "Hallo Welt. Dies ist ein Test für das Programmierprojekt 2023"}
+        data = {"data": "Hallo Welt.... Dies ist ein Test für das Programmierprojekt 2023"}
 
         return data
 
