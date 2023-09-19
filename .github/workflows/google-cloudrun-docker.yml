@@ -52,7 +52,7 @@ env:
   PROJECT_ID: programmierprojekt-397609 # TODO: update Google Cloud project id
   GAR_LOCATION: europe-west1 # TODO: update Artifact Registry location
   SERVICE: kmeans-backend # TODO: update Cloud Run service name
-  REGION: europe-west1 # TODO: update Cloud Run service region
+  REGION: europe-west1 # TODO: update Cloud Run service region.
 
 jobs:
   deploy:
