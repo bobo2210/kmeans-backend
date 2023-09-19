@@ -14,13 +14,7 @@ class HelloWorld(Resource):
         Getter for hello world
         """
 
-1 hour ago
-
-update
         data = {"data": "test2"}
-13 hours ago
-
-first commit
 
         return data
 
