@@ -19,7 +19,7 @@ def root():
 
 @app.post("/uploadcsv/")
 async def upload_csv(file: UploadFile):
-        """
+    """
     Uploads a CSV file and returns its contents as a DataFrame.
 
     Args:
@@ -36,6 +36,7 @@ async def upload_csv(file: UploadFile):
         return {"dataframe": df.to_dict()}  # Convert the DataFrame to a dictionary
     else:
         return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
+
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
