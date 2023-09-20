@@ -33,9 +33,8 @@ async def upload_csv(file: UploadFile):
         # Read the CSV file directly with pandas
         dataframe = pd.read_csv(file.file)
     
-        return {"dataframe": dataframe.to_dict()}  # Convert the DataFrame to a dictionary
-    return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}  # Removed the unnecessary "else" clause
-
+        return {"dataframe": dataframe.to_dict()}
+    return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
