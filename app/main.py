@@ -29,11 +29,11 @@ async def upload_csv(file: UploadFile):
         dict: A dictionary containing the DataFrame with the CSV data.
               If the uploaded file is not a CSV, an error message is returned.
     """
-    if file.filename.endswith(".csv"):
-        # CSV-Datei direkt mit pandas einlesen
-        dataframe = pd.read_csv(file.file)
-        return {"dataframe": dataframe.to_dict()}  # Convert the DataFrame to a dictionary
-    return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
+    #if file.filename.endswith(".csv"):
+    # CSV-Datei direkt mit pandas einlesen
+    dataframe = pd.read_csv(file.file)
+    return {"dataframe": dataframe.to_dict()}  # Convert the DataFrame to a dictionary
+    #return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
 
 if __name__ == '__main__':
