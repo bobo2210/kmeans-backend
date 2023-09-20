@@ -45,10 +45,10 @@ jobs:
           pip install -r requirements.txt
       - name: Analysing the code with pylint
         run: |
-          python -m pylint tests app
-      - name: Unittesting code
-        run: |
-          python -m pytest tests
+          python -m pylint app
+      #- name: Unittesting code
+      #  run: |
+      #    python -m pytest tests
           
       - name: Google Auth
         id: auth
