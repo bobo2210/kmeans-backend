@@ -32,7 +32,6 @@ async def upload_csv(file: UploadFile):
     if file.filename.endswith(".csv"):
         # Read the CSV file directly with pandas
         dataframe = pd.read_csv(file.file)
-    
         return {"dataframe": dataframe.to_dict()}
     return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
