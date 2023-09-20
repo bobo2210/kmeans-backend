@@ -45,7 +45,7 @@ jobs:
           pip install -r requirements.txt
       - name: Analysing the code with pylint
         run: |
-          python -m pylint $(git ls-files '*.py')
+          python -m pylint tests app
       - name: Unittesting code
         run: |
           python -m pytest tests
