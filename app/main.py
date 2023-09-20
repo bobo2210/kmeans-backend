@@ -6,6 +6,14 @@ app = FastAPI()
 
 @app.get("/")
 def root():
+    """
+    Handle the root endpoint.
+
+    This function returns a JSON message with a greeting.
+
+    Returns:
+        dict: A dictionary containing a greeting message.
+    """
     return {"message": "Hello, World!"}
 
 if __name__=='__main__':
