@@ -1,4 +1,6 @@
 fastapi
 uvicorn
 pandas
+sklearn.cluster
+numpy
 python-multipart
