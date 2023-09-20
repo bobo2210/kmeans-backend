@@ -1,6 +1,7 @@
 """Module providing Function to run Webserver/API"""
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 import uvicorn
+import pandas as pd  # Import pandas module
 
 app = FastAPI()
 
@@ -18,7 +19,7 @@ def root():
 
 @app.post("/uploadcsv/")
 async def upload_csv(file: UploadFile):
-    """
+        """
     Uploads a CSV file and returns its contents as a DataFrame.
 
     Args:
@@ -32,9 +33,9 @@ async def upload_csv(file: UploadFile):
         # CSV-Datei direkt mit pandas einlesen
         df = pd.read_csv(file.file)
     
-        return {"dataframe": df}
+        return {"dataframe": df.to_dict()}  # Convert the DataFrame to a dictionary
     else:
         return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
-if __name__=='__main__':
+if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
