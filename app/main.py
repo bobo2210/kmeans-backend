@@ -18,6 +18,16 @@ def root():
 
 @app.post("/uploadcsv/")
 async def upload_csv(file: UploadFile):
+    """
+    Uploads a CSV file and returns its contents as a DataFrame.
+
+    Args:
+        file (UploadFile): The uploaded CSV file.
+
+    Returns:
+        dict: A dictionary containing the DataFrame with the CSV data.
+              If the uploaded file is not a CSV, an error message is returned.
+    """
     if file.filename.endswith(".csv"):
         # CSV-Datei direkt mit pandas einlesen
         df = pd.read_csv(file.file)
