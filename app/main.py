@@ -1,7 +1,6 @@
 """Module providing Function to run Webserver/API"""
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI
 import uvicorn
-import pandas as pd  # Import pandas module
 
 app = FastAPI()
 
