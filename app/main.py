@@ -1,4 +1,4 @@
-r"""Module providing Function to run Webserver/API """
+"""Module providing Function to run Webserver/API """
 from fastapi import FastAPI, UploadFile
 import uvicorn
 import pandas as pd
@@ -11,7 +11,7 @@ tasks = {}
 
 
 @app.post("/kmeans/")
-async def kmeans(file: UploadFile, num_clusters int = 2):
+async def kmeans(file: UploadFile, num_clusters: int = 2):
     """
     Uploads a CSV file, performs k-means and returns an array with the clusters 
 
