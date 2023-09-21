@@ -17,6 +17,20 @@ def root():
     """
     return {"message": "Hello, World!"}
 
+
+def check_file(df):
+     """
+    Check file for clustering
+
+    This function cecks if a file can be accepted for clustering
+
+    Returns:
+        cleaned dataframe.
+    """
+    df_cleaned = df.dropna()
+    return df_cleaned
+    
+
 @app.post("/uploadcsv/")
 async def upload_csv(file: UploadFile):
     """
