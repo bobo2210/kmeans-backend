@@ -1,6 +1,6 @@
 fastapi
 uvicorn
 pandas
-sklearn
+scikit-learn
 numpy
 python-multipart
