@@ -1,11 +1,11 @@
 """Module providing Function to run Webserver/API """
 import asyncio
+import json
 from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
 from sklearn.cluster import KMeans
-import json
 
 app = FastAPI()
 
@@ -28,13 +28,13 @@ async def kmeans_start(file: UploadFile, num_clusters: int = 2):
     """
     if file.filename.endswith(".json"):
         #json Datei öffnen
-        with open(file, "r") as json_file:
+        with file.file as json_file:
             data = json.load(json_file)
         # Zugriff auf die Parameter für K-Means
-        kmeans_parameters = data["kmeans_parameters"]
-        k_value = kmeans_parameters["k"]
-        max_iterations = kmeans_parameters["max_iterations"]
-        tolerance = kmeans_parameters["tolerance"]
+        #kmeans_parameters = data["kmeans_parameters"]
+        #k_value = kmeans_parameters["k"]
+        #max_iterations = kmeans_parameters["max_iterations"]
+        #tolerance = kmeans_parameters["tolerance"]
         # Zugriff auf die Datenpunkte
         data_points = data["data_points"]
         # Erstellen eines  Pandas DataFrame
