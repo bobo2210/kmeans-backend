@@ -29,8 +29,7 @@ async def kmeans_start(file: UploadFile, num_clusters: int = 2):
     if file.filename.endswith(".json"):
         #json Datei öffnen
         with open(file, "r") as json_file:
-        data = json.load(json_file)
-
+            data = json.load(json_file)
         # Zugriff auf die Parameter für K-Means
         kmeans_parameters = data["kmeans_parameters"]
         k_value = kmeans_parameters["k"]
