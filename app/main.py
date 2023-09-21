@@ -55,7 +55,7 @@ async def run_kmeans_onek(dataframe, num_clusters):
         num_clusters (int): The number of clusters default = 2
         
     Returns:
-        dict: A dictionary containing the DataFrame with the CSV data.
+        dict: A dictionary with the DataFrame with the CSV data.
               If the uploaded file is not a CSV, an error message is returned.
     """
     # Instanciate sklearn's k-means using num_clusters clusters
