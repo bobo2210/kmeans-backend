@@ -1,8 +1,10 @@
 """Module providing Function to run Webserver/API """
-import asyncio
 from fastapi import FastAPI, UploadFile
 import uvicorn
 import pandas as pd
+import asyncio
+from fastapi.exceptions import HTTPException
+from sklearn.cluster import KMeans
 
 app = FastAPI()
 
@@ -13,52 +15,45 @@ tasks = {}
 @app.post("/kmeans/")
 async def kmeans(file: UploadFile, num_clusters: int = 2):
     """
-    Uploads a CSV file, performs k-means and returns an array with the clusters 
+    Uploads a CSV file, performs k-means, and returns an array with the clusters 
 
     Args:
         file (UploadFile): The uploaded CSV file.
-        num_clusters (int): The number of clusters default = 2
+        num_clusters (int): The number of clusters, default = 2
         
     Returns:
         dict: A dictionary containing the DataFrame with the CSV data.
               If the uploaded file is not a CSV, an error message is returned.
     """
     if file.filename.endswith(".csv"):
-        # Erstelle eine eindeutige Task-ID
+        # Read the CSV file directly with pandas
+        dataframe = pd.read_csv(file.file)
+        # Create a unique task ID
         task_id = len(tasks) + 1
         # Initialize the task with a "processing" status and an empty results list
         tasks[task_id] = {"status": "processing", "results": []}
-        asyncio.create_task(run_kmeans_onek(pd.read_csv(file.file), num_clusters))
+        asyncio.create_task(run_kmeans_onek(dataframe, num_clusters, task_id))
         return {"TaskID": task_id}
     return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
-def check_file(dataframe):
+async def run_kmeans_onek(dataframe, num_clusters, task_id):
     """
-    Check file for clustering
-
-    This function cecks if a file can be accepted for clustering
-
-    Returns:
-        cleaned dataframe.
-    """
-    dataframe_cleaned = dataframe.dropna()
-    return dataframe_cleaned
-
-async def run_kmeans_onek(dataframe, num_clusters):
-    """
-    Uploads a CSV file, performs k-means and returns an array with the clusters 
+    Uploads a CSV file, performs k-means, and returns an array with the clusters 
 
     Args:
-        file (UploadFile): The uploaded CSV file.
-        num_clusters (int): The number of clusters default = 2
+        dataframe (pd.DataFrame): The uploaded CSV data.
+        num_clusters (int): The number of clusters, default = 2
+        task_id (int): The task ID
         
     Returns:
         dict: A dictionary with the DataFrame with the CSV data.
               If the uploaded file is not a CSV, an error message is returned.
     """
-    # Instanciate sklearn's k-means using num_clusters clusters
-    kmeans = KMeans(n_clusters=2, n_init='auto', verbose = 2)
-    kmeans.fit(df.values)
+    # Instantiate sklearn's k-means using num_clusters clusters
+    kmeans = KMeans(n_clusters=num_clusters, n_init='auto', verbose=2)
+
+    # execute k-means algorithm
+    kmeans.fit(dataframe.values)
     # Update the task with the "completed" status and the results
     tasks[task_id]["status"] = "completed"
     tasks[task_id]["results"] = kmeans.labels_
@@ -70,10 +65,10 @@ async def get_task_status(task_id: int):
     Returns the current status of a task
 
     Args:
-        task_id:the Id of the task
+        task_id: The ID of the task
         
     Returns:
-        
+        dict: A dictionary with the status of the task.
     """
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -84,13 +79,13 @@ async def get_task_status(task_id: int):
 @app.get("/kmeans/result/{task_id}")
 async def get_task_result(task_id: int):
     """
-    gets the results of the kmeans method
+    Gets the results of the k-means method
 
     Args:
-        taskid, the id of the regarded task
+        task_id: The ID of the regarded task
         
     Returns:
-        
+        dict: A dictionary with the results of the task.
     """
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -99,7 +94,7 @@ async def get_task_result(task_id: int):
     if not task_result:
         raise HTTPException(status_code=404, detail="Task result not available yet")
 
-    return task_result
+    return {"result": task_result}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
