@@ -30,12 +30,12 @@ async def kmeans(file: UploadFile, num_clusters int = 2):
         task_id = len(tasks) + 1
         # Initialize the task with a "processing" status and an empty results list
         tasks[task_id] = {"status": "processing", "results": []}
-        asyncio.create_task(run_kmeans(dataf))
+        asyncio.create_task(run_kmeans_onek(dataf))
         return {"TaskID": task_id}
     return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
 
-async def run_kmeans(dataframe, num_clusters):
+async def run_kmeans_onek(dataframe, num_clusters):
     """
     Uploads a CSV file, performs k-means and returns an array with the clusters 
 
