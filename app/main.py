@@ -19,7 +19,7 @@ def root():
 
 
 def check_file(df):
-     """
+    """
     Check file for clustering
 
     This function cecks if a file can be accepted for clustering
