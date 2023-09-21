@@ -5,6 +5,7 @@ from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
 from sklearn.cluster import KMeans
+import json
 
 app = FastAPI()
 
@@ -25,18 +26,29 @@ async def kmeans_start(file: UploadFile, num_clusters: int = 2):
         dict: A dictionary containing the DataFrame with the CSV data.
               If the uploaded file is not a CSV, an error message is returned.
     """
-    if file.filename.endswith(".csv"):
-        # Read the CSV file directly with pandas
-        dataframe = pd.read_csv(file.file)
+    if file.filename.endswith(".json"):
+        #json Datei öffnen
+        with open(file, "r") as json_file:
+        data = json.load(json_file)
+
+        # Zugriff auf die Parameter für K-Means
+        kmeans_parameters = data["kmeans_parameters"]
+        k_value = kmeans_parameters["k"]
+        max_iterations = kmeans_parameters["max_iterations"]
+        tolerance = kmeans_parameters["tolerance"]
+        # Zugriff auf die Datenpunkte
+        data_points = data["data_points"]
+        # Erstellen eines  Pandas DataFrame
+        dataframe = pd.DataFrame(data_points)
         # Create a unique task ID
         task_id = len(tasks) + 1
         # Initialize the task with a "processing" status and an empty results list
         tasks[task_id] = {"status": "processing", "results": []}
-        asyncio.create_task(run_kmeans_onek(dataframe, num_clusters, task_id))
+        asyncio.create_task(run_kmeans_one_k(dataframe, num_clusters, task_id))
         return {"TaskID": task_id}
     return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
-async def run_kmeans_onek(dataframe, num_clusters, task_id):
+async def run_kmeans_one_k(dataframe, num_clusters, task_id):
     """
     Uploads a CSV file, performs k-means, and returns an array with the clusters 
 
