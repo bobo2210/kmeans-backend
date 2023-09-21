@@ -1,4 +1,4 @@
-"""Module providing Function to run Webserver/API"""
+r"""Module providing Function to run Webserver/API"""
 from fastapi import FastAPI, UploadFile
 import uvicorn
 import pandas as pd
@@ -60,11 +60,10 @@ async def run_kmeans_onek(dataframe, num_clusters):
 @app.get("/kmeans/status/{task_id}")
 async def get_task_status(task_id: int):
     """
-    Uploads a CSV file, performs k-means and returns an array with the clusters 
+    Returns the current status of a task
 
     Args:
-        file (UploadFile): The uploaded CSV file.
-        num_clusters (int): The number of clusters default = 2
+        task_id:the Id of the task
         
     Returns:
         
