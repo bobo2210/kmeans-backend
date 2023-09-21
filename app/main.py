@@ -72,7 +72,6 @@ async def get_task_status(task_id: int):
     """
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
-    
     task_status = tasks[task_id]["status"]
     return {"status": task_status}
 
