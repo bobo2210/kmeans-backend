@@ -84,7 +84,7 @@ async def get_task_result(task_id: int):
         task_id: The ID of the regarded task
         
     Returns:
-        dict: A dictionary with the results of the task.
+        dict: A dictionary with the results of task.
     """
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
