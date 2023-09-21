@@ -1,8 +1,8 @@
 """Module providing Function to run Webserver/API """
+import asyncio
 from fastapi import FastAPI, UploadFile
 import uvicorn
 import pandas as pd
-import asyncio
 
 app = FastAPI()
 
@@ -24,13 +24,11 @@ async def kmeans(file: UploadFile, num_clusters: int = 2):
               If the uploaded file is not a CSV, an error message is returned.
     """
     if file.filename.endswith(".csv"):
-        # Read the CSV file directly with pandas
-        dataframe = pd.read_csv(file.file)
         # Erstelle eine eindeutige Task-ID
         task_id = len(tasks) + 1
         # Initialize the task with a "processing" status and an empty results list
         tasks[task_id] = {"status": "processing", "results": []}
-        asyncio.create_task(run_kmeans_onek(dataf))
+        asyncio.create_task(run_kmeans_onek(pd.read_csv(file.file), num_clusters))
         return {"TaskID": task_id}
     return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
@@ -60,8 +58,6 @@ async def run_kmeans_onek(dataframe, num_clusters):
     """
     # Instanciate sklearn's k-means using num_clusters clusters
     kmeans = KMeans(n_clusters=2, n_init='auto', verbose = 2)
-
-    # execute k-means algorithm
     kmeans.fit(df.values)
     # Update the task with the "completed" status and the results
     tasks[task_id]["status"] = "completed"
