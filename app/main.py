@@ -34,6 +34,17 @@ async def kmeans(file: UploadFile, num_clusters int = 2):
         return {"TaskID": task_id}
     return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
+def check_file(dataframe):
+    """
+    Check file for clustering
+
+    This function cecks if a file can be accepted for clustering
+
+    Returns:
+        cleaned dataframe.
+    """
+    dataframe_cleaned = dataframe.dropna()
+    return dataframe_cleaned
 
 async def run_kmeans_onek(dataframe, num_clusters):
     """
