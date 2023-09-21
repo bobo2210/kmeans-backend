@@ -1,9 +1,9 @@
 """Module providing Function to run Webserver/API """
+import asyncio
 from fastapi import FastAPI, UploadFile
+from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
-import asyncio
-from fastapi.exceptions import HTTPException
 from sklearn.cluster import KMeans
 
 app = FastAPI()
@@ -13,7 +13,7 @@ tasks = {}
 
 
 @app.post("/kmeans/")
-async def kmeans(file: UploadFile, num_clusters: int = 2):
+async def kmeans_start(file: UploadFile, num_clusters: int = 2):
     """
     Uploads a CSV file, performs k-means, and returns an array with the clusters 
 
@@ -72,10 +72,10 @@ async def get_task_status(task_id: int):
     """
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
-        
+    
     task_status = tasks[task_id]["status"]
     return {"status": task_status}
-    
+
 @app.get("/kmeans/result/{task_id}")
 async def get_task_result(task_id: int):
     """
