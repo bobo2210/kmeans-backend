@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
 async def dataframe_to_json(currenttaskid, dataframe1, dataframe2):
     # JSON erstellen
-    filename = 'data'+str(id)
+    filename = 'data'+str(currenttaskid)
     fileend = '.json'
     output_file = filename + fileend
     # Erstes DataFrame in JSON speichern (Überschreiben, falls die Datei existiert)
