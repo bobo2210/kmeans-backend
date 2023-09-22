@@ -52,7 +52,7 @@ async def kmeans_start(file: UploadFile, num_clusters: int = 2):
         asyncio.create_task(run_kmeans_one_k(dataframe, num_clusters, task_id, tasks))
 
         return {"TaskID": task_id}
-    return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
+    return {"error": "Die hochgeladene Datei ist keine json-Datei."}
 
 async def data_check(dataframe):
     """
