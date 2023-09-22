@@ -54,6 +54,31 @@ async def kmeans_start(file: UploadFile, num_clusters: int = 2):
         return {"TaskID": task_id}
     return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
 
+async def data_check(dataframe):
+    """
+    Checks a dataframe and clears it for clustering 
+
+    Args:
+        dataframe (pd.DataFrame): The uploaded CSV data.
+        cleaned_df (pd.DataFrame): The cleaned CSV data.
+        
+    Returns:
+        cleaned_df (pd.DataFrame): The cleaned CSV data.
+    """
+    cleaned_df=dataframe.dropna()
+    for column in cleaned_df.columns:
+        if contains_numbers_and_letters(cleaned_df[column]).any():
+            cleaned_df.drop(column, axis=1, inplace=True)
+    return cleaned_df  
+    
+async def contains_numbers_and_letters(column):
+    """
+    Checks if a column contains only numbers or letters 
+        
+    Returns:
+        bool for check
+    """
+    return column.str.contains(r'[0-9]') & column.str.contains(r'[a-zA-Z]')
 
 @app.get("/kmeans/status/{task_id}")
 async def get_task_status(task_id: int):
