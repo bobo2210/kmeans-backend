@@ -118,3 +118,17 @@ async def get_task_result(task_id: int):
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
+
+async def dataframe_to_json(id, dataframe1, dataframe2):
+    # JSON erstellen
+    filename = 'data'+str(id)
+    fileend = '.json'
+    output_file = filename + fileend
+    # Erstes DataFrame in JSON speichern (Überschreiben, falls die Datei existiert)
+    dataframe1.to_json(output_file, orient='records')
+
+    # Zweites DataFrame in JSON speichern (Anhängen, falls die Datei existiert)
+    dataframe2.to_json(output_file, orient='records', lines=True, mode='a')
+    
+    # return JSON
+    return output_file
