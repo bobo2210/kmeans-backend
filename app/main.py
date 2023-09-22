@@ -120,6 +120,12 @@ if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
 
 async def dataframe_to_json(currenttaskid, dataframe1, dataframe2):
+    """
+    merges two dataframes to a json with the current id in the name 
+        
+    Returns:
+        json for frontend
+    """
     # JSON erstellen
     filename = 'data'+str(currenttaskid)
     fileend = '.json'
