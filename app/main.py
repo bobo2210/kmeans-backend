@@ -69,8 +69,8 @@ async def data_check(dataframe):
     for column in cleaned_df.columns:
         if contains_numbers_and_letters(cleaned_df[column]).any():
             cleaned_df.drop(column, axis=1, inplace=True)
-    return cleaned_df  
-    
+    return cleaned_df
+
 async def contains_numbers_and_letters(column):
     """
     Checks if a column contains only numbers or letters 
