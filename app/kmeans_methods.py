@@ -38,15 +38,31 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
     if not isinstance(number_runs, int) and number_runs != 'auto':
         error_message += "The number of kmeans-runs has to be an integer. "
     if k_value > len(dataframe) or not isinstance(k_value, int):
-        error_message += "The k-value has to be an integer and smaller than the number of datapoints. "
+        error_message += ("The k-value has to be an integer"
+                          " and smaller than the number of datapoints. ")
     if initialisation in ("k-means++","random"):
         # Instantiate sklearn's k-means using num_clusters clusters
-        kmeans = KMeans(n_clusters=k_value, init=initialisation, n_init=number_runs, max_iter=maximum_iter, tol=tolerance, algorithm=used_algorithm, verbose=2)
+        kmeans = KMeans(
+            n_clusters=k_value, 
+            init=initialisation, 
+            n_init=number_runs, 
+            max_iter=maximum_iter, 
+            tol=tolerance, 
+            algorithm=used_algorithm, 
+            verbose=2)
     elif initialisation == "cluster":
         # Instantiate sklearn's k-means using num_clusters clusters
-        kmeans = KMeans(n_clusters=k_value, init=centroids_start, n_init=number_runs, max_iter=maximum_iter, tol=tolerance, algorithm=used_algorithm, verbose=2)
+        kmeans = KMeans(
+            n_clusters=k_value,
+            init=centroids_start, 
+            n_init=number_runs, 
+            max_iter=maximum_iter, 
+            tol=tolerance, 
+            algorithm=used_algorithm, 
+            verbose=2)
     else:
-        error_message += "The parameter init has to be k-means++, random or cluster in combination with a specification of the initial centroid positions. "
+        error_message += ("The parameter init has to be k-means++, random or cluster"
+                          " in combination with a specification of the initial centroid positions. "
     if error_message != "":
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] = error_message
@@ -57,5 +73,3 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
     # Update the task with the "completed" status and the results
     tasks[task_id]["status"] = "completed"
     tasks[task_id]["results"] = kmeans.labels_
-
-        
