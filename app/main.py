@@ -2,6 +2,7 @@
 import asyncio
 import json
 import logging
+import numpy as np
 from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
 import uvicorn
@@ -17,13 +18,13 @@ tasks = {}
 
 
 @app.post("/kmeans/")
-async def kmeans_start(file: UploadFile, num_clusters: int = 2):
+async def kmeans_start(file: UploadFile):
     """
     Uploads a json file, performs k-means, and returns the id of the task
 
     Args:
         file (UploadFile): The uploaded json file.
-        num_clusters (int): The number of clusters, default = 2
+                           The file has to contain the params of the kmeans method
         
     Returns:
         dict: The Id of the task
@@ -35,10 +36,9 @@ async def kmeans_start(file: UploadFile, num_clusters: int = 2):
             data = json.load(json_file)
 
         #Zugriff auf die Parameter für K-Means
-        #kmeans_parameters = data["kmeans_parameters"]
-        #k_value = kmeans_parameters["k"]
-        #max_iterations = kmeans_parameters["max_iterations"]
-        #tolerance = kmeans_parameters["tolerance"]
+        kmeans_parameters = data["kmeans_parameters"]
+        centroids_start_json = data["centroids"]
+        centroids_start = np.array([[centroid["x"], centroid["y"]] for centroid in centroids_start_json])
 
         # Zugriff auf die Datenpunkte
         data_points = data.get("data_points", [])
@@ -47,12 +47,12 @@ async def kmeans_start(file: UploadFile, num_clusters: int = 2):
         # Create a unique task ID
         task_id = len(tasks) + 1
         # Initialize the task with a "processing" status and an empty results list
-        tasks[task_id] = {"status": "processing", "results": []}
+        tasks[task_id] = {"status": "processing", "results": [], "message": ""}
 
-        asyncio.create_task(run_kmeans_one_k(dataframe, num_clusters, task_id, tasks))
+        asyncio.create_task(run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroids_start))
 
         return {"TaskID": task_id}
-    return {"error": "Die hochgeladene Datei ist keine CSV-Datei."}
+    raise HTTPException(status_code=400, detail="Datei ist keine json Datei")
 
 
 @app.get("/kmeans/status/{task_id}")
@@ -69,6 +69,8 @@ async def get_task_status(task_id: int):
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
     task_status = tasks[task_id]["status"]
+    if task_status == "Bad Request":
+        raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
     return {"status": task_status}
 
 @app.get("/kmeans/result/{task_id}")
@@ -80,14 +82,17 @@ async def get_task_result(task_id: int):
         task_id: The ID of the regarded task
         
     Returns:
-        dict: A dictionary with the results of the task.
+        array: An array with the results of the task.
     """
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
     task_status = tasks[task_id]["status"]
     task_result = tasks[task_id]["results"]
     if task_status != "completed":
-        raise HTTPException(status_code=400, detail="Task result not available yet")
+        if task_status == "Bad Request":
+            raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
+        else:
+            raise HTTPException(status_code=400, detail="Task result not available yet")
 
     return {"result": task_result.tolist()}
 
