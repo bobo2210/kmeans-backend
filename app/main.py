@@ -38,7 +38,7 @@ async def kmeans_start(file: UploadFile):
         #Zugriff auf die Parameter für K-Means
         kmeans_parameters = data["kmeans_parameters"]
         centroids_start_json = data["centroids"]
-        centroids_start = np.array([[centroid["x"], 
+        centroids_start = np.array([[centroid["x"],
                                      centroid["y"]] for centroid in centroids_start_json])
 
         # Zugriff auf die Datenpunkte
@@ -50,10 +50,10 @@ async def kmeans_start(file: UploadFile):
         # Initialize the task with a "processing" status and an empty results list
         tasks[task_id] = {"status": "processing", "results": [], "message": ""}
 
-        asyncio.create_task(run_kmeans_one_k(dataframe, 
-                                             task_id, 
-                                             tasks, 
-                                             kmeans_parameters, 
+        asyncio.create_task(run_kmeans_one_k(dataframe,
+                                             task_id,
+                                             tasks,
+                                             kmeans_parameters,
                                              centroids_start))
 
         return {"TaskID": task_id}
