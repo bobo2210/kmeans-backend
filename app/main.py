@@ -116,8 +116,7 @@ async def get_task_result(task_id: int):
     if task_status != "completed":
         if task_status == "Bad Request":
             raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
-        else:
-            raise HTTPException(status_code=400, detail="Task result not available yet")
+        raise HTTPException(status_code=400, detail="Task result not available yet")
 
     return {"result": task_result.tolist()}
 
