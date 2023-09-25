@@ -28,21 +28,17 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
     #distance_cardinal = kmeans_parameters["distance_cardinal"]
     initialisation = kmeans_parameters["init"]
     used_algorithm = kmeans_parameters["algorithm"]
+    error_message = ""
     if not isinstance(number_runs, int):
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] += "The Number of runs has to be an integer. "
+        error_message += "The Number of runs has to be an integer. "
     if not isinstance(tolerance, float):
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] += "The tolerance has to be a float value. "
+        error_message += "The tolerance has to be a float value. "
     if not isinstance(maximum_iter, int):
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] += "The maximal number of iterations has to be an integer. "
+        error_message += "The maximal number of iterations has to be an integer. "
     if not isinstance(number_runs, int) and number_runs != 'auto':
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] += "The number of kmeans-runs has to be an integer. "
+        error_message += "The number of kmeans-runs has to be an integer. "
     if k_value > len(dataframe) or not isinstance(k_value, int):
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] += "The k-value has to be an integer and smaller than the number of datapoints. "
+        error_message += "The k-value has to be an integer and smaller than the number of datapoints. "
     if initialisation in ("k-means++","random"):
         # Instantiate sklearn's k-means using num_clusters clusters
         kmeans = KMeans(n_clusters=k_value, init=initialisation, n_init=number_runs, max_iter=maximum_iter, tol=tolerance, algorithm=used_algorithm, verbose=2)
@@ -50,13 +46,16 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
         # Instantiate sklearn's k-means using num_clusters clusters
         kmeans = KMeans(n_clusters=k_value, init=centroids_start, n_init=number_runs, max_iter=maximum_iter, tol=tolerance, algorithm=used_algorithm, verbose=2)
     else:
+        error_message += "The parameter init has to be k-means++, random or cluster in combination with a specification of the initial centroid positions. "
+    if error_message != "":
         tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] += "The parameter init has to be k-means++, random or cluster in combination with a specification of the initial centroid positions. "
-    if tasks[task_id]["status"] != "Bad Request":
-        # execute k-means algorithm
-        kmeans.fit(dataframe.values)
-        # Update the task with the "completed" status and the results
-        tasks[task_id]["status"] = "completed"
-        tasks[task_id]["results"] = kmeans.labels_
+        tasks[task_id]["message"] = error_message
+        return
+
+    # execute k-means algorithm
+    kmeans.fit(dataframe.values)
+    # Update the task with the "completed" status and the results
+    tasks[task_id]["status"] = "completed"
+    tasks[task_id]["results"] = kmeans.labels_
 
         
