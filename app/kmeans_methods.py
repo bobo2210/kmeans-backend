@@ -2,7 +2,6 @@
 Module for k-means clustering methods.
 """
 
-import pandas as pd
 from sklearn.cluster import KMeans
 
 async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroids_start=None):
@@ -43,26 +42,27 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
     if initialisation in ("k-means++","random"):
         # Instantiate sklearn's k-means using num_clusters clusters
         kmeans = KMeans(
-            n_clusters=k_value, 
-            init=initialisation, 
-            n_init=number_runs, 
-            max_iter=maximum_iter, 
-            tol=tolerance, 
-            algorithm=used_algorithm, 
+            n_clusters=k_value,
+            init=initialisation,
+            n_init=number_runs,
+            max_iter=maximum_iter,
+            tol=tolerance,
+            algorithm=used_algorithm,
             verbose=2)
     elif initialisation == "cluster":
         # Instantiate sklearn's k-means using num_clusters clusters
         kmeans = KMeans(
             n_clusters=k_value,
-            init=centroids_start, 
-            n_init=number_runs, 
-            max_iter=maximum_iter, 
-            tol=tolerance, 
-            algorithm=used_algorithm, 
+            init=centroids_start,
+            n_init=number_runs,
+            max_iter=maximum_iter,
+            tol=tolerance,
+            algorithm=used_algorithm,
             verbose=2)
     else:
         error_message += ("The parameter init has to be k-means++, random or cluster"
-                          " in combination with a specification of the initial centroid positions. ")
+                          " in combination with a specification"
+                          " of the initial centroid positions. ")
     if error_message != "":
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] = error_message
