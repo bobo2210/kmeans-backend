@@ -90,7 +90,8 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
     if error_message != "":
         tasks[task_id]["status"] = "Bad Request"
 
-        tasks[task_id]["message"] = tasks[task_id]["message"] + "The parameter init has to be k-means++, random or cluster in combination with a specification of the initial centroid positions. "
+        tasks[task_id]["message"] += ("The parameter init has to be k-means++, random or cluster "
+                                     "in combination with a specification of the initial centroid positions. ")
     if tasks[task_id]["status"] != "Bad Request":
         # execute k-means algorithm
         kmeans.fit(dataframe_clean.values)
