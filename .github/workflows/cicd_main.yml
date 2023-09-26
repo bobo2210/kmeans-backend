@@ -1,4 +1,4 @@
-name: Linting, Testing, Building, Deploying
+name: CI/CD Main
 on:
   push:
     branches:  
