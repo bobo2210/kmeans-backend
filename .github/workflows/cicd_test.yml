@@ -2,7 +2,7 @@ name: CI/CD Test
 on:
   push:
     branches:  
-      - dev
+      - test
     paths-ignore:
       - README.md
       - CHANGELOG.md # Should never be edited anyway
@@ -10,7 +10,7 @@ on:
       - .github/**
   pull_request:
     branches: 
-      - dev
+      - test
 
 env:
   PROJECT_ID: programmierprojekt-397609 # TODO: update Google Cloud project id
