@@ -3,6 +3,7 @@ Module for k-means clustering methods.
 """
 
 from sklearn.cluster import KMeans
+from main import data_check
 
 async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroids_start=None):
     """
