@@ -7,9 +7,10 @@ from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
-from kmeans_methods import run_kmeans_one_k
+from app.kmeans_methods import run_kmeans_one_k
 
 app = FastAPI()
+CFG_PORT = 5000
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +127,7 @@ async def get_task_result(task_id: int):
     return {"result": task_result.tolist()}
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=CFG_PORT)
 
 async def dataframe_to_json(currenttaskid, dataframe1, dataframe2):
     """
