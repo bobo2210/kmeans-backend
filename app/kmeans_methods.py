@@ -3,7 +3,6 @@ Module for k-means clustering methods.
 """
 
 from sklearn.cluster import KMeans
-from main import data_check
 
 async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroids_start=None):
     """
@@ -18,8 +17,8 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
         dict: A dictionary with the DataFrame with the CSV data.
               If the uploaded file is not a CSV, an error message is returned.
     """
-    #Dateicheck einf�gen
-    dataframe_clean = data_check(dataframe)
+    #Dateicheck einfuegen
+    #dataframe_clean = main.data_check(dataframe)
     #get the different params
 
     if "k" in kmeans_parameters: 
@@ -90,11 +89,9 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
     if error_message != "":
         tasks[task_id]["status"] = "Bad Request"
 
-        tasks[task_id]["message"] += ("The parameter init has to be k-means++, random or cluster "
-                                     "in combination with a specification of the initial centroid positions. ")
     if tasks[task_id]["status"] != "Bad Request":
         # execute k-means algorithm
-        kmeans.fit(dataframe_clean.values)
+        kmeans.fit(dataframe.values)
         # Update the task with the "completed" status and the results
         tasks[task_id]["status"] = "completed"
         tasks[task_id]["results"] = kmeans.labels_
@@ -102,9 +99,3 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
 
         tasks[task_id]["message"] = error_message
         return
-
-    # execute k-means algorithm
-    kmeans.fit(dataframe.values)
-    # Update the task with the "completed" status and the results
-    tasks[task_id]["status"] = "completed"
-    tasks[task_id]["results"] = kmeans.labels_
