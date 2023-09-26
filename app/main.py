@@ -48,7 +48,12 @@ async def kmeans_start(file: UploadFile):
         # Create a unique task ID
         task_id = len(tasks) + 1
         # Initialize the task with a "processing" status and an empty results list
-        tasks[task_id] = {"status": "processing","Datenpunkte": dataframe, "results": [], "centroid_positions": [], "message": ""}
+        tasks[task_id] = {
+            "status": "processing",
+            "Datenpunkte": dataframe,
+            "results": [],
+            "centroid_positions": [],
+            "message": ""}
 
         asyncio.create_task(run_kmeans_one_k(dataframe,
                                              task_id,

@@ -49,34 +49,6 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
     else:
         used_algorithm = "lloyd"
 
-    if isinstance(number_runs, int) == False:
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] = tasks[task_id]["message"] + "The Number of runs has to be an integer. "
-    if isinstance(tolerance, float) == False:
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] = tasks[task_id]["message"] + "The tolerance has to be a float value. "
-    if isinstance(maximum_iter, int) == False:
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] = tasks[task_id]["message"] + "The maximal number of iterations has to be an integer. "
-    if isinstance(number_runs, int) == False and number_runs != 'auto':
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] = tasks[task_id]["message"] + "The number of kmeans-runs has to be an integer. "
-    if k_value > len(dataframe_clean) or isinstance(k_value, int) == False:
-        tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] = tasks[task_id]["message"] + "The k-value has to be an integer and smaller than the number of datapoints. "
-    if initialisation in ("k-means++","random"):
-        # Instantiate sklearn's k-means using num_clusters clusters
-        kmeans = KMeans(n_clusters=k_value, init=initialisation, n_init=number_runs, max_iter=maximum_iter, tol=tolerance, algorithm=used_algorithm, verbose=2)
-    elif initialisation == "centroids":
-
-    k_value = kmeans_parameters["k"]
-    number_runs = kmeans_parameters["number_runs"]
-    maximum_iter = kmeans_parameters["max_iterations"]
-    tolerance = kmeans_parameters["tolerance"]
-    #distance_nominal = kmeans_parameters["distance_nominal"]
-    #distance_cardinal = kmeans_parameters["distance_cardinal"]
-    initialisation = kmeans_parameters["init"]
-    used_algorithm = kmeans_parameters["algorithm"]
     error_message = ""
     if not isinstance(number_runs, int):
         error_message += "The Number of runs has to be an integer. "
