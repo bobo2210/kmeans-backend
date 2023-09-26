@@ -38,7 +38,8 @@ async def kmeans_start(file: UploadFile):
         #Zugriff auf die Parameter für K-Means
         kmeans_parameters = data["kmeans_parameters"]
         centroids_start_json = data["centroids"]
-        centroids_start = np.array([[centroid["x"], centroid["y"]] for centroid in centroids_start_json])
+        centroids_start = np.array([[centroid["x"],
+                                     centroid["y"]] for centroid in centroids_start_json])
 
         # Zugriff auf die Datenpunkte
         data_points = data.get("data_points", [])
@@ -49,7 +50,11 @@ async def kmeans_start(file: UploadFile):
         # Initialize the task with a "processing" status and an empty results list
         tasks[task_id] = {"status": "processing","Datenpunkte": dataframe, "results": [], "centroid_positions": [], "message": ""}
 
-        asyncio.create_task(run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroids_start))
+        asyncio.create_task(run_kmeans_one_k(dataframe,
+                                             task_id,
+                                             tasks,
+                                             kmeans_parameters,
+                                             centroids_start))
 
         return {"TaskID": task_id}
     return {"error": "Die hochgeladene Datei ist keine json-Datei."}
@@ -116,8 +121,7 @@ async def get_task_result(task_id: int):
     if task_status != "completed":
         if task_status == "Bad Request":
             raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
-        else:
-            raise HTTPException(status_code=400, detail="Task result not available yet")
+        raise HTTPException(status_code=400, detail="Task result not available yet")
 
     return {"result": task_result.tolist()}
 
