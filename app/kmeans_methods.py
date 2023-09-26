@@ -19,35 +19,24 @@ async def run_kmeans_one_k(dataframe, task_id, tasks, kmeans_parameters, centroi
     """
     #Dateicheck einfuegen
     #dataframe_clean = main.data_check(dataframe)
-    #get the different params
 
-    if "k" in kmeans_parameters: 
-        k_value = kmeans_parameters["k"]
-    else:
-        k_value = 8
-    if "number_runs" in kmeans_parameters:
-        number_runs = kmeans_parameters["number_runs"]
-    else:
-        number_runs = 10
-    if "max_iterations" in kmeans_parameters:
-        maximum_iter = kmeans_parameters["max_iterations"]
-    else:
-        maximum_iter = 300
-    if "tolerance" in kmeans_parameters:
-        tolerance = kmeans_parameters["tolerance"]
-    else:
-        tolerance = 0.0001
-    if "init" in kmeans_parameters:
-        initialisation = kmeans_parameters["init"]
-    else:
-        if centroids_start is not None:
-            initialisation = "centroids"
-        else:
-            initialisation = "k-means++"
-    if "algorithm" in kmeans_parameters:
-        used_algorithm = kmeans_parameters["algorithm"]
-    else:
-        used_algorithm = "lloyd"
+    # Define default values for parameters
+    default_params = {
+        "k": 8,
+        "number_runs": 10,
+        "max_iterations": 300,
+        "tolerance": 0.0001,
+        "init": "k-means++",
+        "algorithm": "lloyd"
+    }
+
+    # Get the different params from kmeans_parameters or use defaults
+    k_value = kmeans_parameters.get("k", default_params["k"])
+    number_runs = kmeans_parameters.get("number_runs", default_params["number_runs"])
+    maximum_iter = kmeans_parameters.get("max_iterations", default_params["max_iterations"])
+    tolerance = kmeans_parameters.get("tolerance", default_params["tolerance"])
+    initialisation = kmeans_parameters.get("init", default_params["init"])
+    used_algorithm = kmeans_parameters.get("algorithm", default_params["algorithm"])
 
     error_message = ""
     if not isinstance(number_runs, int):
