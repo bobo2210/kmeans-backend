@@ -116,7 +116,7 @@ async def get_task_result(task_id: int):
         array: An array with the results of the task.
     """
     if task_id not in tasks:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="Task not found.")
     task_status = tasks[task_id]["status"]
     task_result = tasks[task_id]["results"]
     if task_status != "completed":
