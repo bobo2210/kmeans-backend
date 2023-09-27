@@ -90,7 +90,7 @@ async def contains_numbers_and_letters(column):
     """
     return column.str.contains(r'[0-9]') & column.str.contains(r'[a-zA-Z]')
 
-def check_file(df):
+def check_file(dataframe):
     """
     Check file for clustering
 
@@ -99,7 +99,7 @@ def check_file(df):
     Returns:
         cleaned dataframe.
     """
-    df_cleaned = df.dropna()
+    df_cleaned = dataframe.dropna()
     return df_cleaned
 
 @app.get("/kmeans/status/{task_id}")
