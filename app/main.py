@@ -18,7 +18,7 @@ def root():
     return {"message": "Hello, World!"}
 
 
-def check_file(df):
+def check_file(dataframef):
     """
     Check file for clustering
 
@@ -27,8 +27,8 @@ def check_file(df):
     Returns:
         cleaned dataframe.
     """
-    df_cleaned = df.dropna()
-    return df_cleaned
+    dataframe_cleaned = dataframe.dropna()
+    return dataframe_cleaned
     
 
 @app.post("/uploadcsv/")
