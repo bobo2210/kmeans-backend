@@ -30,7 +30,6 @@ async def kmeans_start(file: UploadFile,
 
     Args:
         Only k and file are mandatory
-        
         file (UploadFile): The uploaded json or csv file.
 
         k (int): The number of clusters
@@ -199,7 +198,7 @@ async def get_task_result(task_id: str):
         array: An array with the results of the task.
     """
     if task_id not in tasks:
-        raise HTTPException(status_code=404, detail="Task not found.")
+        raise HTTPException(status_code=404, detail="Task not found")
     task_status = tasks[task_id]["status"]
     task_result = tasks[task_id]["results"]
     if task_status != "completed":
@@ -210,7 +209,7 @@ async def get_task_result(task_id: str):
     return {"result": task_result.tolist()}
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=CFG_PORT)
+    uvicorn.run(app, host="0.0.0.0", port=5000)
 
 async def dataframe_to_json(currenttaskid, dataframe1, dataframe2):
     """
