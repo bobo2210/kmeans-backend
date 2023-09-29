@@ -1,68 +1,133 @@
 """Module providing Function to run Webserver/API """
 import asyncio
 import json
-import logging
 import numpy as np
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, Form
 from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
+import uuid
+import io
 from kmeans_methods import run_kmeans_one_k
+from typing import Optional
+from urllib.parse import unquote
 
 app = FastAPI()
-
-logger = logging.getLogger(__name__)
 
 # Dictionary to store tasks, including status and results
 tasks = {}
 
 
 @app.post("/kmeans/")
-async def kmeans_start(file: UploadFile):
+async def kmeans_start(file: UploadFile,
+                       k: int,
+                       number_kmeans_runs: str = 10,
+                       max_iterations:int = 300,
+                       tolerance: float = 0.0001,
+                       init: str = "k-means++",
+                       algorithm: str = "lloyd",
+                       centroids: str = None):
     """
-    Uploads a json file, performs k-means, and returns the id of the task
+    Uploads a json or csv file, performs k-means, and returns the id of the task
 
     Args:
-        file (UploadFile): The uploaded json file.
-                           The file has to contain the params of the kmeans method
-        
+        Only k and file are mandatory
+        file (UploadFile): The uploaded json or csv file.
+
+        k (int): The number of clusters
+
+        number_runs (int): The number of times the kmeans algorithm is performed with different initial centroid positions
+
+        max_iterations (int): The maximal number of iterations performed by the kmeans algorithm
+
+        tolerance (float): The height of the frobenius norm which has to be fallen below in order for the kmeans algorithm to stop iterating
+
+        init(str) ("k-means++", "random" or "centroids"): The initialisation method of the centroids. 
+                                                            k-means++: Automatically choose best initial start centroids;
+                                                            random: randomly choose startpoint
+                                                            centroids: Use the provided centroids
+
+        algorithm (str) ("lloyd", "elkan", "auto", "full"): "lloyd"
+
+        Centroids JSON string containing the array of arrays of the initial centroid positions
+
     Returns:
         dict: The Id of the task
-              If the uploaded file is not a json, an error message is returned.
+              If the uploaded file is not a json or csv, an error message is returned.
     """
+
     if file.filename.endswith(".json"):
+
         #json Datei öffnen
         with file.file as json_file:
             data = json.load(json_file)
 
-        #Zugriff auf die Parameter für K-Means
-        kmeans_parameters = data["kmeans_parameters"]
-        centroids_start_json = data["centroids"]
-        centroids_start = np.array([[centroid["x"],
-                                     centroid["y"]] for centroid in centroids_start_json])
+        #Zugriff auf die Centroids für K-Means
+        centroids_start = data.get("centroids", None)
 
         # Zugriff auf die Datenpunkte
         data_points = data.get("data_points", [])
+
         # Erstellen eines  Pandas DataFrame
         dataframe = pd.DataFrame(data_points)
-        # Create a unique task ID
-        task_id = len(tasks) + 1
-        # Initialize the task with a "processing" status and an empty results list
-        tasks[task_id] = {
-            "status": "processing",
-            "Datenpunkte": dataframe,
-            "results": [],
-            "centroid_positions": [],
-            "message": ""}
+    elif file.filename.endswith(".csv"):
+        centroids_start = None
+        # Read the uploaded CSV file
+        csv_data = await file.read()
+        # Create a DataFrame from the CSV data
+        dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";", usecols=range(1,3))
+    else:
+        return {"error": "Die hochgeladene Datei ist keine json oder csv Datei."}
 
-        asyncio.create_task(run_kmeans_one_k(dataframe,
-                                             task_id,
-                                             tasks,
-                                             kmeans_parameters,
-                                             centroids_start))
+    if number_kmeans_runs.isdigit():
+        number_runs = int(number_kmeans_runs)
+    else:
+        number_runs = number_kmeans_runs
 
-        return {"TaskID": task_id}
-    return {"error": "Die hochgeladene Datei ist keine json-Datei."}
+    if centroids is not None:
+        try:
+            centroids_start = json.loads(unquote(centroids))
+        except json.JSONDecodeError as e:
+            raise HTTPException(status_code=400, detail= str(e))
+
+    error_message = ""
+    if not isinstance(number_runs, int) and number_runs != 'auto':
+        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
+    if k > len(dataframe) or not isinstance(k, int):
+        error_message += ("The k-value has to be an integer"
+                          " and smaller than the number of datapoints. ")
+    if (not init in ("k-means++","random", "centroids") or
+        (init == "centroids" and (centroids is None and centroids_start is None))):
+        error_message += ("The parameter init has to be k-means++, random or centroids"
+                          " in combination with a specification"
+                          " of the initial centroid positions. ")
+    if error_message != "":
+        raise HTTPException(status_code=400, detail= error_message)
+
+    # Create a unique task ID
+    task_id = str(uuid.uuid4())
+
+    # Initialize the task with a "processing" status and an empty results list
+    tasks[task_id] = {
+        "status": "processing",
+        "Datenpunkte": dataframe,
+        "results": [],
+        "centroid_positions": [],
+        "message": ""}
+
+    asyncio.create_task(run_kmeans_one_k(dataframe,
+                                            task_id,
+                                            tasks,
+                                            k,
+                                            number_runs,
+                                            max_iterations,
+                                            tolerance,
+                                            init,
+                                            algorithm,
+                                            centroids_start))
+
+    return {"TaskID": task_id}
+    
 
 async def data_check(dataframe):
     """
@@ -103,7 +168,7 @@ def check_file(dataframe):
     return df_cleaned
 
 @app.get("/kmeans/status/{task_id}")
-async def get_task_status(task_id: int):
+async def get_task_status(task_id: str):
     """
     Returns the current status of a task
 
@@ -121,7 +186,7 @@ async def get_task_status(task_id: int):
     return {"status": task_status}
 
 @app.get("/kmeans/result/{task_id}")
-async def get_task_result(task_id: int):
+async def get_task_result(task_id: str):
     """
     Gets the results of the k-means method
 
