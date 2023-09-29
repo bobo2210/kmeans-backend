@@ -1,16 +1,17 @@
-FROM ubuntu
+# 
+FROM python:3.9
 
-# Install Linux dependencies
-RUN apt-get update 
-RUN apt-get -y install python3 python3-pip
+# 
+WORKDIR /code
 
-# Install Python requirements
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+# 
+COPY ./requirements.txt /code/requirements.txt
 
-# Create a working directory and copy application into container
-WORKDIR /app
-COPY ./app/ .
+# 
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-# Start API
-ENTRYPOINT ["python3", "main.py"]
+# 
+COPY ./app /code/app
+
+# 
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
