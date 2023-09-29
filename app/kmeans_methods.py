@@ -60,4 +60,3 @@ async def run_kmeans_one_k(dataframe,
     except ValueError as exception:
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] += str(exception)
-
