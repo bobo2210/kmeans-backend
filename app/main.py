@@ -8,7 +8,7 @@ from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
-from kmeans_methods import run_kmeans_one_k
+from app.kmeans_methods import run_kmeans_one_k
 
 app = FastAPI()
 
