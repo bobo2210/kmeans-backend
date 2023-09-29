@@ -15,7 +15,7 @@ app = FastAPI()
 # Dictionary to store tasks, including status and results
 tasks = {}
 
-
+# pylint: disable=too-many-arguments,too-many-locals
 @app.post("/kmeans/")
 async def kmeans_start(file: UploadFile,
                        k: int,
@@ -89,8 +89,8 @@ async def kmeans_start(file: UploadFile,
     if centroids is not None:
         try:
             centroids_start = json.loads(unquote(centroids))
-        except json.JSONDecodeError as e:
-            raise HTTPException(status_code=400, detail= str(e)) from e
+        except json.JSONDecodeError as exception:
+            raise HTTPException(status_code=400, detail= str(e)) from exception
 
     error_message = ""
     if not isinstance(number_runs, int) and number_runs != 'auto':
@@ -98,7 +98,7 @@ async def kmeans_start(file: UploadFile,
     if k > len(dataframe) or not isinstance(k, int):
         error_message += ("The k-value has to be an integer"
                           " and smaller than the number of datapoints. ")
-    if (not init in ("k-means++","random", "centroids") or
+    if (init not in ("k-means++","random", "centroids") or
         (init == "centroids" and (centroids is None and centroids_start is None))):
         error_message += ("The parameter init has to be k-means++, random or centroids"
                           " in combination with a specification"

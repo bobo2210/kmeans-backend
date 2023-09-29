@@ -4,6 +4,7 @@ Module for k-means clustering methods.
 
 from sklearn.cluster import KMeans
 
+# pylint: disable=too-many-arguments
 async def run_kmeans_one_k(dataframe,
                            task_id,
                            tasks,
@@ -56,7 +57,7 @@ async def run_kmeans_one_k(dataframe,
         tasks[task_id]["status"] = "completed"
         tasks[task_id]["results"] = kmeans.labels_
         tasks[task_id]["centroid_positions"] = kmeans.cluster_centers_
-    except Exception as exception:
+    except ValueError as exception:
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] += str(exception)
 
