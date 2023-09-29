@@ -1,16 +1,14 @@
 """Module providing Function to run Webserver/API """
 import asyncio
 import json
-import numpy as np
-from fastapi import FastAPI, UploadFile, Form
+import uuid
+import io
+from urllib.parse import unquote
+from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
-import uuid
-import io
 from kmeans_methods import run_kmeans_one_k
-from typing import Optional
-from urllib.parse import unquote
 
 app = FastAPI()
 
@@ -36,16 +34,20 @@ async def kmeans_start(file: UploadFile,
 
         k (int): The number of clusters
 
-        number_runs (int): The number of times the kmeans algorithm is performed with different initial centroid positions
+        number_runs (int): The number of times the kmeans algorithm 
+                            is performed with different initial centroid positions
 
-        max_iterations (int): The maximal number of iterations performed by the kmeans algorithm
+        max_iterations (int): The maximal number of iterations
+                               performed by the kmeans algorithm
 
-        tolerance (float): The height of the frobenius norm which has to be fallen below in order for the kmeans algorithm to stop iterating
+        tolerance (float): The height of the frobenius norm which has to be 
+                            fallen below in order for the kmeans algorithm to stop iterating
 
-        init(str) ("k-means++", "random" or "centroids"): The initialisation method of the centroids. 
-                                                            k-means++: Automatically choose best initial start centroids;
-                                                            random: randomly choose startpoint
-                                                            centroids: Use the provided centroids
+        init(str) ("k-means++", "random" or "centroids"): 
+                                    The initialisation method of the centroids. 
+                                    k-means++: Automatically choose best initial start centroids;
+                                    random: randomly choose startpoint
+                                    centroids: Use the provided centroids
 
         algorithm (str) ("lloyd", "elkan", "auto", "full"): "lloyd"
 
@@ -75,7 +77,7 @@ async def kmeans_start(file: UploadFile,
         # Read the uploaded CSV file
         csv_data = await file.read()
         # Create a DataFrame from the CSV data
-        dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";", usecols=range(1,3))
+        dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";")
     else:
         return {"error": "Die hochgeladene Datei ist keine json oder csv Datei."}
 
@@ -88,7 +90,7 @@ async def kmeans_start(file: UploadFile,
         try:
             centroids_start = json.loads(unquote(centroids))
         except json.JSONDecodeError as e:
-            raise HTTPException(status_code=400, detail= str(e))
+            raise HTTPException(status_code=400, detail= str(e)) from e
 
     error_message = ""
     if not isinstance(number_runs, int) and number_runs != 'auto':
@@ -131,7 +133,7 @@ async def kmeans_start(file: UploadFile,
 
 async def data_check(dataframe):
     """
-    Checks a dataframe and clears it for clustering 
+    Checks a dataframe and clears it for clustering
 
     Args:
         dataframe (pd.DataFrame): The uploaded CSV data.
