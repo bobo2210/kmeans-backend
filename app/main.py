@@ -1,15 +1,14 @@
 """Module providing Function to run Webserver/API """
-import asyncio
 import json
 import uuid
 import io
+import threading
 from urllib.parse import unquote
 from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
 from kmeans_methods import run_kmeans_one_k
-import threading
 
 
 app = FastAPI()
