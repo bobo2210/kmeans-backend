@@ -5,7 +5,7 @@ Module for k-means clustering methods.
 from sklearn.cluster import KMeans
 
 # pylint: disable=too-many-arguments
-async def run_kmeans_one_k(dataframe,
+def run_kmeans_one_k(dataframe,
                            task_id,
                            tasks,
                            k_value,
