@@ -41,8 +41,8 @@ def run_kmeans_one_k(dataframe,
             algorithm=used_algorithm,
             verbose=2)
     elif initialisation == "centroids":
-          # Instantiate sklearn's k-means using num_clusters clusters
-          kmeans = KMeans(
+        # Instantiate sklearn's k-means using num_clusters clusters
+        kmeans = KMeans(
                 n_clusters=k_value,
                 init=centroids_start,
                 n_init=number_runs,
@@ -51,8 +51,8 @@ def run_kmeans_one_k(dataframe,
                 algorithm=used_algorithm,
                 verbose=2)
     if kmeans is None:
-      tasks[task_id]["status"] = "Bad Request"
-      tasks[task_id]["message"] = str(initialisation)
+        tasks[task_id]["status"] = "Bad Request"
+        tasks[task_id]["message"] = str(initialisation)
     try:
         # execute k-means algorithm
         kmeans.fit(dataframe.values)
