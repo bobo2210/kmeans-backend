@@ -41,8 +41,8 @@ def run_kmeans_one_k(dataframe,
             algorithm=used_algorithm,
             verbose=2)
     elif initialisation == "centroids":
-        # Instantiate sklearn's k-means using num_clusters clusters
-        kmeans = KMeans(
+          # Instantiate sklearn's k-means using num_clusters clusters
+          kmeans = KMeans(
                 n_clusters=k_value,
                 init=centroids_start,
                 n_init=number_runs,
