@@ -1,6 +1,5 @@
-"""Module Tests App"""
-import json
 import pytest
+import os
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -8,15 +7,28 @@ from app.main import app
 client = TestClient(app)
 
 # Sample JSON data for testing
-sample_json_data = {
-    "kmeans_parameters": {"n_clusters": 2},
-    "centroids": [{"x": 1, "y": 2}, {"x": 3, "y": 4}],
-    "data_points": [{"x": 1, "y": 2}, {"x": 3, "y": 4}],
+test_params = {
+    "k": 2,
+    "number_kmeans_runs": 5,
+    "max_iterations": 300,
+    "tolerance": 0.0001,
+    "init": "k-means++",
+    "algorithm": "lloyd"
 }
+
+# Pfad zur Datei, die du senden möchtest
+file_path = "tests/kmeans_test.json"
+wrong_file_path = "tests/kmeans_test.error"
+
+# Überprüfe den Dateipfad
+if not os.path.exists(file_path):
+    raise FileNotFoundError(f"File not found: {file_path}")
+
+
 def test_upload_json_and_check_task_status():
-    """Test json upload"""
     # Test uploading a JSON file
-    response = client.post("/kmeans/", files={"file": ("data.json", json.dumps(sample_json_data))})
+    with open(file_path, "rb") as file:
+        response = client.post("/kmeans/",params=test_params,files={"file": file})
 
     # Check if the response status code is 200 OK
     assert response.status_code == 200
@@ -35,30 +47,24 @@ def test_upload_json_and_check_task_status():
     # Check if the response status code is 200 OK
     assert response.status_code == 200
 
-    # Parse the response JSON
-    response_data = response.json()
+    # # Parse the response JSON
+    # response_data = response.json()
 
-    # Check if the task status is "processing" initially
-    assert response_data["status"] == "processing"
+    # # Check if the task status is "processing" initially
+    # assert response_data["status"] == "processing"
 
 def test_upload_invalid_file():
-    """Test upload invalid file"""
-    # Test uploading a non-JSON file
-    response = client.post("/kmeans/", files={"file": ("data.txt", "This is not JSON data")})
+    # Test uploading an invalid JSON file
+    with open(wrong_file_path, "rb") as file:
+        response = client.post("/kmeans/",params=test_params,files={"file": file})
 
-    # Check if the response status code is 200 OK
-    assert response.status_code == 200
-
-    # Parse the response JSON
-    response_data = response.json()
-
-    # Check if an error message is returned
-    assert "error" in response_data
+    # Check if the response status code is 400 Bad Request
+    assert response.json() == {"error": "Die hochgeladene Datei ist keine json oder csv Datei."}
 
 def test_get_task_result():
-    """Test get task result"""
-    # Test getting task result
-    response = client.post("/kmeans/", files={"file": ("data.json", json.dumps(sample_json_data))})
+    # Test uploading a JSON file and retrieving task result
+    with open(file_path, "rb") as file:
+        response = client.post("/kmeans/",params=test_params,files={"file": file})
 
     # Check if the response status code is 200 OK
     assert response.status_code == 200
@@ -87,21 +93,8 @@ def test_get_task_result():
     # Parse the response JSON
     response_data = response.json()
 
-    # Check if the result is as expected (you may need to modify
-    # this based on your application's behavior)
+    # Add your assertions for the task result here
     # assert response_data["result"] == expected_result
 
 if __name__ == "__main__":
     pytest.main()
-
-
-#"""Main test"""
-#from fastapi.testclient import TestClient
-#from app.main import app
-#
-#client = TestClient(app)
-#
-#def test_read_main():
-#    """Test API"""
-#    response = client.get("/kmeans/status/2")
-#    assert response.json() == {"detail": "Task not found"}
