@@ -119,18 +119,8 @@ async def kmeans_start(file: UploadFile,
         "message": ""}
 
     # Create a separate thread to run run_kmeans_one_k
-    args= (
-        dataframe,
-        task_id,
-        tasks,
-        number_runs,
-        max_iterations,
-        tolerance,
-        init,
-        algorithm,
-        centroids_start
-    )
-    kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=args)
+    kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=(
+        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids_start))
     kmeans_thread.start()
 
     return {"TaskID": task_id}
