@@ -5,7 +5,7 @@ Module for k-means clustering methods.
 from sklearn.cluster import KMeans
 
 # pylint: disable=too-many-arguments
-async def run_kmeans_one_k(dataframe,
+def run_kmeans_one_k(dataframe,
                            task_id,
                            tasks,
                            k_value,
@@ -29,7 +29,7 @@ async def run_kmeans_one_k(dataframe,
     """
     #Dateicheck einfuegen
     #dataframe_clean = main.data_check(dataframe)
-
+    kmeans = None
     if initialisation in ("k-means++","random"):
         # Instantiate sklearn's k-means using num_clusters clusters
         kmeans = KMeans(
@@ -50,6 +50,9 @@ async def run_kmeans_one_k(dataframe,
                 tol=tolerance,
                 algorithm=used_algorithm,
                 verbose=2)
+    if kmeans is None:
+        tasks[task_id]["status"] = "Bad Request"
+        tasks[task_id]["message"] = str(initialisation)
     try:
         # execute k-means algorithm
         kmeans.fit(dataframe.values)

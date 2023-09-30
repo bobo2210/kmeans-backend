@@ -1,8 +1,8 @@
 """Module providing Function to run Webserver/API """
-import asyncio
 import json
 import uuid
 import io
+import threading
 from urllib.parse import unquote
 from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
@@ -10,12 +10,13 @@ import uvicorn
 import pandas as pd
 from app.kmeans_methods import run_kmeans_one_k
 
+
 app = FastAPI()
 
 # Dictionary to store tasks, including status and results
 tasks = {}
 
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-locals, line-too-long
 @app.post("/kmeans/")
 async def kmeans_start(file: UploadFile,
                        k: int,
@@ -117,16 +118,10 @@ async def kmeans_start(file: UploadFile,
         "centroid_positions": [],
         "message": ""}
 
-    asyncio.create_task(run_kmeans_one_k(dataframe,
-                                            task_id,
-                                            tasks,
-                                            k,
-                                            number_runs,
-                                            max_iterations,
-                                            tolerance,
-                                            init,
-                                            algorithm,
-                                            centroids_start))
+    # Create a separate thread to run run_kmeans_one_k
+    kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=(
+        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids_start))
+    kmeans_thread.start()
 
     return {"TaskID": task_id}
 
