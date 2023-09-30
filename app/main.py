@@ -16,7 +16,7 @@ app = FastAPI()
 # Dictionary to store tasks, including status and results
 tasks = {}
 
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-locals, line-too-long
 @app.post("/kmeans/")
 async def kmeans_start(file: UploadFile,
                        k: int,
