@@ -9,6 +9,8 @@ from fastapi.exceptions import HTTPException
 import uvicorn
 import pandas as pd
 from kmeans_methods import run_kmeans_one_k
+import threading
+
 
 app = FastAPI()
 
@@ -117,16 +119,20 @@ async def kmeans_start(file: UploadFile,
         "centroid_positions": [],
         "message": ""}
 
-    asyncio.create_task(run_kmeans_one_k(dataframe,
-                                            task_id,
-                                            tasks,
-                                            k,
-                                            number_runs,
-                                            max_iterations,
-                                            tolerance,
-                                            init,
-                                            algorithm,
-                                            centroids_start))
+    # Create a separate thread to run run_kmeans_one_k
+    args= (
+        dataframe,
+        task_id,
+        tasks,
+        number_runs,
+        max_iterations,
+        tolerance,
+        init,
+        algorithm,
+        centroids_start
+    )
+    kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=args)
+    kmeans_thread.start()
 
     return {"TaskID": task_id}
 
