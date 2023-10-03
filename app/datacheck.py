@@ -1,4 +1,8 @@
-"""Module checking incoming dataframes"""
+"""
+Module checking incoming dataframes
+"""
+
+import pandas as pd
 
 async def data_check(dataframe):
     """
