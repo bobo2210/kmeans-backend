@@ -202,7 +202,6 @@ async def dataframe_to_json(currenttaskid, dataframe, array, arrayofarrays):
     # Speichern Sie die Daten in einer JSON-Datei
     with open(output_file, 'w', encoding='utf-8') as json_file:
         json.dump(output_data, json_file, indent=4)
-    
     # Erstes DataFrame in JSON speichern (Überschreiben, falls die Datei existiert)
     #dataframe1.to_json(output_file, orient='records')
     # Zweites DataFrame in JSON speichern (Anhängen, falls die Datei existiert)
