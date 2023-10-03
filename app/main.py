@@ -198,7 +198,7 @@ async def dataframe_to_json(currenttaskid, dataframe, array, arrayofarrays):
         'coordinates_and_cluster': dataframe.to_dict(orient='records'),  # Konvertieren des DataFrame in ein Dictionary
         'centroids': arrayofarrays
     }
-    
+
     # Speichern Sie die Daten in einer JSON-Datei
     with open(output_file, 'w', encoding='utf-8') as json_file:
         json.dump(output_data, json_file, indent=4)
