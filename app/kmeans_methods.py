@@ -21,7 +21,7 @@ def run_kmeans_one_k(dataframe,
     Args:
         dataframe (pd.DataFrame): The uploaded CSV data.
         num_clusters (int): The number of clusters, default = 2
-        task_id (int): The task ID
+        task_id (int): The taskID
         
     Returns:
         dict: A dictionary with the DataFrame with the CSV data.
