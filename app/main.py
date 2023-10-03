@@ -6,12 +6,22 @@ import threading
 from urllib.parse import unquote
 from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import pandas as pd
 from app.kmeans_methods import run_kmeans_one_k
 
 
 app = FastAPI()
+
+# Allow all origins by setting allow_origins to "*"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dictionary to store tasks, including status and results
 tasks = {}
