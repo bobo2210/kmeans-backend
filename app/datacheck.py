@@ -3,8 +3,6 @@
 Module checking incoming dataframes
 """
 
-import pandas as pd
-
 async def data_check(dataframe):
     """
     Checks a dataframe and clears it for clustering
@@ -28,7 +26,7 @@ async def data_check(dataframe):
         if contains_numbers_and_letters(cleaned_df[column]).any():
             cleaned_df.drop(column, axis=1, inplace=True)
     return cleaned_df
-
+    
 async def contains_numbers_and_letters(column):
     """
     Checks if a column contains numbers and letters 
