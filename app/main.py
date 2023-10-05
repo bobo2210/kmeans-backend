@@ -9,7 +9,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import pandas as pd
-from app.kmeans_methods import *
+from app.kmeans_methods import run_kmeans_one_k, run_kmeans_elbow
 
 
 app = FastAPI()
@@ -297,7 +297,7 @@ async def get_task_result(task_id: str):
 
     if tasks[task_id]["method"] == "one_k":
         return {"result": task_result.tolist()}
-    elif tasks[task_id]["method"] == "elbow":
+    if tasks[task_id]["method"] == "elbow":
         return {"elbow": task_inertias}
 
 if __name__ == '__main__':

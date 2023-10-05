@@ -6,15 +6,15 @@ from sklearn.cluster import KMeans
 
 # pylint: disable=too-many-arguments
 def run_kmeans_one_k(dataframe,
-                           task_id,
-                           tasks,
-                           k_value,
-                           number_runs,
-                           max_iterations,
-                           tolerance,
-                           initialisation,
-                           used_algorithm,
-                           centroids_start=None):
+                    task_id,
+                    tasks,
+                    k_value,
+                    number_runs,
+                    max_iterations,
+                    tolerance,
+                    initialisation,
+                    used_algorithm,
+                    centroids_start=None):
     """
     Uploads a CSV file, performs k-means, and returns an array with the clusters 
 
@@ -80,12 +80,15 @@ def run_kmeans_elbow(dataframe,
                         initialisation,
                         used_algorithm,
                         centroids_start=None):
+    """
+    Performs kmeans for elbow method
+    """
     if k_min < 1:
         k_min=1
 
-    k_values = range(k_min, k_max + 1)
+    k_min = max(k_min, 1)
     inertia_values = []
-        
+    
     for k_value in k_values:
         inertia = run_kmeans_one_k(dataframe,
                                     task_id,
@@ -96,7 +99,7 @@ def run_kmeans_elbow(dataframe,
                                     tolerance,
                                     initialisation,
                                     used_algorithm,
-                                    centroids_start=None)
+                                    centroids_start)
         inertia_values.append(inertia)
 
     tasks[task_id]["inertia_values"] = inertia_values
