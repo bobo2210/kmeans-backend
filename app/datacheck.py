@@ -30,11 +30,19 @@ async def data_check(dataframe):
             cleaned_df.drop(column, axis=1, inplace=True)
 
     # Filtern der kategorischen Spalten und Durchführung von OHE
+    # Filter columns by data type (categorical)
+    categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
+    
+    # One-Hot-Encoding for categorical columns
     encoder = OneHotEncoder(sparse=False, drop='first')
     encoded_columns = encoder.fit_transform(cleaned_df[categorical_columns])
     encoded_feature_names = encoder.get_feature_names_out(input_features=categorical_columns)
     encoded_df = pd.DataFrame(encoded_columns, columns=encoded_feature_names)
+    
+    # Drop original categorical columns
     cleaned_df = cleaned_df.drop(columns=categorical_columns)
+    
+    # Concatenate encoded DataFrame with the original DataFrame
     cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
 
     # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
