@@ -62,7 +62,6 @@ def run_kmeans_one_k(dataframe,
             tasks[task_id]["results"] = kmeans.labels_
             tasks[task_id]["centroid_positions"] = kmeans.cluster_centers_
         elif  tasks[task_id]["method"] == "elbow":
-            tasks[task_id]["status"] = "completed"
             return kmeans.inertia_
     except ValueError as exception:
         tasks[task_id]["status"] = "Bad Request"
@@ -101,4 +100,5 @@ def run_kmeans_elbow(dataframe,
                                     centroids_start)
         inertia_values.append(inertia)
 
+    tasks[task_id]["status"] = "completed"
     tasks[task_id]["inertia_values"] = inertia_values
