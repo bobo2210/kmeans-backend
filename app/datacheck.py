@@ -2,6 +2,9 @@
 """
 Module checking incoming dataframes
 """
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder
 
 async def data_check(dataframe):
     """
@@ -20,13 +23,32 @@ async def data_check(dataframe):
     # Löscht alle Zeilen mit nicht alphanumerischen Werten
     for column in cleaned_df.columns:
         cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
-    
+
     #löscht alle Zeilen, die Buchstaben UND Zanhlen enthalten
     for column in cleaned_df.columns:
         if contains_numbers_and_letters(cleaned_df[column]).any():
             cleaned_df.drop(column, axis=1, inplace=True)
+
+    # Filtern der kategorischen Spalten und Durchführung von OHE
+    categorical_columns = cleaned_df.select_dtypes(include=['object']).columns
+    encoder = OneHotEncoder(sparse=False, drop='first')
+    encoded_columns = encoder.fit_transform(cleaned_df[categorical_columns])
+    encoded_df = pd.DataFrame(encoded_columns, columns=encoder.get_feature_names(categorical_columns))
+    cleaned_df = cleaned_df.drop(columns=categorical_columns)
+    cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
+
+    # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
+    #numerical_columns = cleaned_df.select_dtypes(include=['int', 'float']).columns
+    #scaler = StandardScaler()
+    #cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
+
+    # Skalierung der numerischen Spalten (Min-Max-Skalierung)
+    numerical_columns = cleaned_df.select_dtypes(include=['int', 'float']).columns
+    scaler = MinMaxScaler()  # Min-Max-Skalierung anstelle von Standardisierung
+    cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
+
     return cleaned_df
-    
+
 async def contains_numbers_and_letters(column):
     """
     Checks if a column contains numbers and letters 
