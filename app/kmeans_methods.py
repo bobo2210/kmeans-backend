@@ -4,7 +4,7 @@ Module for k-means clustering methods.
 
 from sklearn.cluster import KMeans
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments,inconsistent-return-statements
 def run_kmeans_one_k(dataframe,
                     task_id,
                     tasks,
@@ -87,8 +87,9 @@ def run_kmeans_elbow(dataframe,
         k_min=1
 
     k_min = max(k_min, 1)
+    k_values = range(k_min, max_k + 1)
     inertia_values = []
-    
+
     for k_value in k_values:
         inertia = run_kmeans_one_k(dataframe,
                                     task_id,
