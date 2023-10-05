@@ -9,7 +9,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import pandas as pd
-from app.kmeans_methods import run_kmeans_one_k
+from app.kmeans_methods import *
 
 
 app = FastAPI()
@@ -41,6 +41,7 @@ async def kmeans_start(file: UploadFile,
 
     Args:
         Only k and file are mandatory
+
         file (UploadFile): The uploaded json or csv file.
 
         k (int): The number of clusters
@@ -60,7 +61,7 @@ async def kmeans_start(file: UploadFile,
                                     random: randomly choose startpoint
                                     centroids: Use the provided centroids
 
-        algorithm (str) ("lloyd", "elkan", "auto", "full"): "lloyd"
+        algorithm (str) ("lloyd", "elkan", "auto", "full")
 
         Centroids JSON string containing the array of arrays of the initial centroid positions
 
@@ -123,9 +124,11 @@ async def kmeans_start(file: UploadFile,
     # Initialize the task with a "processing" status and an empty results list
     tasks[task_id] = {
         "status": "processing",
+        "method": "one_k",
         "Datenpunkte": dataframe,
         "results": [],
         "centroid_positions": [],
+        "inertia_values": [],
         "message": ""}
 
     # Create a separate thread to run run_kmeans_one_k
@@ -134,6 +137,124 @@ async def kmeans_start(file: UploadFile,
     kmeans_thread.start()
 
     return {"TaskID": task_id}
+
+# pylint: disable=too-many-arguments,too-many-locals, line-too-long
+@app.post("/elbow/")
+async def elbow_start(file: UploadFile,
+                       k_min: int,
+                       k_max: int,
+                       number_kmeans_runs: str = 10,
+                       max_iterations:int = 300,
+                       tolerance: float = 0.0001,
+                       init: str = "k-means++",
+                       algorithm: str = "lloyd",
+                       centroids: str = None):
+    """
+    Uploads a json or csv file, performs k-means for each k, and returns the id of the task
+
+    Args:
+        Only k and file are mandatory
+
+        file (UploadFile): The uploaded json or csv file.
+
+        k_min (int): The lowest number of clusters on which kmeans is supposed performed in order to evaluate its inertia
+
+        k_max (int): The highest number of clusters on which kmeans is supposed performed in order to evaluate its inertia
+
+        number_runs (int): The number of times the kmeans algorithm 
+                            is performed with different initial centroid positions
+
+        max_iterations (int): The maximal number of iterations
+                               performed by the kmeans algorithm
+
+        tolerance (float): The height of the frobenius norm which has to be 
+                            fallen below in order for the kmeans algorithm to stop iterating
+
+        init(str) ("k-means++", "random" or "centroids"): 
+                                    The initialisation method of the centroids. 
+                                    k-means++: Automatically choose best initial start centroids;
+                                    random: randomly choose startpoint
+                                    centroids: Use the provided centroids
+
+        algorithm (str) ("lloyd", "elkan", "auto", "full"): "lloyd"
+
+        Centroids JSON string containing the array of arrays of the initial centroid positions
+
+    Returns:
+        dict: The Id of the task
+              If the uploaded file is not a json or csv, an error message is returned.
+    """
+
+    if file.filename.endswith(".json"):
+
+        #json Datei öffnen
+        with file.file as json_file:
+            data = json.load(json_file)
+
+        #Zugriff auf die Centroids für K-Means
+        centroids_start = data.get("centroids", None)
+
+        # Zugriff auf die Datenpunkte
+        data_points = data.get("data_points", [])
+
+        # Erstellen eines  Pandas DataFrame
+        dataframe = pd.DataFrame(data_points)
+    elif file.filename.endswith(".csv"):
+        centroids_start = None
+        # Read the uploaded CSV file
+        csv_data = await file.read()
+        # Create a DataFrame from the CSV data
+        dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";")
+    else:
+        return {"error": "Die hochgeladene Datei ist keine json oder csv Datei."}
+
+    if number_kmeans_runs.isdigit():
+        number_runs = int(number_kmeans_runs)
+    else:
+        number_runs = number_kmeans_runs
+
+    if centroids is not None:
+        try:
+            centroids_start = json.loads(unquote(centroids))
+        except json.JSONDecodeError as exception:
+            raise HTTPException(status_code=400, detail= str(exception)) from exception
+
+    error_message = ""
+    if not isinstance(number_runs, int) and number_runs != 'auto':
+        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
+    if k_min > len(dataframe) or k_max > len(dataframe):
+        error_message += ("The k-value has to be an integer"
+                          " and smaller than the number of datapoints. ")
+    if k_min > k_max:
+        error_message += ("k_min has to be smaller than k_max")
+    if (init not in ("k-means++","random", "centroids") or
+        (init == "centroids" and (centroids is None and centroids_start is None))):
+        error_message += ("The parameter init has to be k-means++, random or centroids"
+                          " in combination with a specification"
+                          " of the initial centroid positions. ")
+    if error_message != "":
+        raise HTTPException(status_code=400, detail= error_message)
+
+    # Create a unique task ID
+    task_id = str(uuid.uuid4())
+
+    # Initialize the task with a "processing" status and an empty results list
+    tasks[task_id] = {
+        "status": "processing",
+        "method": "elbow",
+        "Datenpunkte": dataframe,
+        "results": [],
+        "centroid_positions": [],
+        "inertia_values": [],
+        "message": ""}
+
+    # Create a separate thread to run run_kmeans_one_k
+    kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
+        dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids_start))
+    kmeans_elbow_thread.start()
+
+    return {"TaskID": task_id}
+
 
 @app.get("/kmeans/status/{task_id}")
 async def get_task_status(task_id: str):
@@ -168,12 +289,16 @@ async def get_task_result(task_id: str):
         raise HTTPException(status_code=404, detail="Task not found")
     task_status = tasks[task_id]["status"]
     task_result = tasks[task_id]["results"]
+    task_inertias = tasks[task_id]["inertia_values"]
     if task_status != "completed":
         if task_status == "Bad Request":
             raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
         raise HTTPException(status_code=400, detail="Task result not available yet")
 
-    return {"result": task_result.tolist()}
+    if tasks[task_id]["method"] == "one_k":
+        return {"result": task_result.tolist()}
+    elif tasks[task_id]["method"] == "elbow":
+        return {"elbow": task_inertias}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
