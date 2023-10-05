@@ -14,7 +14,7 @@ from app.kmeans_methods import run_kmeans_one_k, run_kmeans_elbow
 
 app = FastAPI()
 
-# Allow all origins by setting allow_origins to "*"
+# Allow all origins by setting allow_origins to  "*"
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
