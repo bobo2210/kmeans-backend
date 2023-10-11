@@ -84,9 +84,9 @@ async def kmeans_start(file: UploadFile,
 
     if centroids is not None:
         try:
-           centroids = json.loads(unquote(centroids))
-      except json.JSONDecodeError as exception:
-         raise HTTPException(status_code=400, detail= str(exception)) from exception
+            centroids = json.loads(unquote(centroids))
+        except json.JSONDecodeError as exception:
+            raise HTTPException(status_code=400, detail= str(exception)) from exception
 
     error_message = ""
     if not isinstance(number_runs, int) and number_runs != 'auto':
