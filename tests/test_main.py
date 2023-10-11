@@ -62,7 +62,7 @@ def test_upload_invalid_file():
         response = client.post("/kmeans/",params=test_params,files={"file": file})
 
     # Check if the response status code is 400 Bad Request
-    assert response.json() == {"error": "Die hochgeladene Datei ist keine json oder csv Datei."}
+    assert response.json() == {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
 
 def test_get_task_result():
     """Test get result"""
