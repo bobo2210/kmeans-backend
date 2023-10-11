@@ -308,7 +308,7 @@ def read_file(file, filename):
 
 async def dataframe_to_json_file(currenttaskid, dataframe, array, arrayofarrays):
     """
-    merges two dataframes to a json with the current id in the name 
+    merges dataframe to a json with the current id in the name 
         
     Returns:
         json for frontend
@@ -319,7 +319,7 @@ async def dataframe_to_json_file(currenttaskid, dataframe, array, arrayofarrays)
     output_file = filename + fileend
 
     #cluster den punkten zuordnen
-    dataframe['clsuter']=array
+    dataframe['cluster']=array
 
     #Daten zusammenführen
     output_data = {
@@ -333,35 +333,26 @@ async def dataframe_to_json_file(currenttaskid, dataframe, array, arrayofarrays)
 
     return output_file
 
-async def dataframe_to_json_str(currenttaskid, dataframe, array, arrayofarrays):
+async def dataframe_to_json_str(dataframe, cluster_labels, centroids):
     """
-    merges two dataframes to a json str with the current id in the name 
+    merges dataframe to a json str  
         
     Returns:
         json str for frontend
     """
-    # Gruppieren der data_points nach Clustern
-    clustered_data = {}
-    for i, cluster_id in enumerate(array):
-        if cluster_id not in clustered_data:
-            clustered_data[cluster_id] = []
-        clustered_data[cluster_id].append(arrayofarrays[i])
+    data = []
 
-    # Die Daten im gewünschten Format vorbereiten
-    data_points_list = []
-    for cluster_id, data_points in clustered_data.items():
-        data_points_item = {
-            "centroids": arrayofarrays[cluster_id],  # Annahme: arrayofarrays enthält die Centroids
-            "data_points": data_points
+    unique_clusters = set(cluster_labels)
+
+    for cluster in unique_clusters:
+        cluster_data = {
+            "centroids": centroids[cluster],
+            "data_points": dataframe[cluster_labels == cluster].values.tolist()
         }
-        data_points_list.append(data_points_item)
+        data.append(cluster_data)
 
-    # Das gewünschte Format vorbereiten
-    output_data = {
-        "data_Points": data_points_list
+    result = {
+        "data_Points": data
     }
 
-    # JSON-String erstellen
-    json_string = json.dumps(output_data, indent=4, ensure_ascii=False)
-
-    return json_string
+    return json.dumps(result, indent=2)
