@@ -76,9 +76,5 @@ def data_check(dataframe,tasks, task_id):
 def contains_numbers_and_letters(column):
     """
     Checks if a column contains numbers and letters 
-        
-    Returns:
-        true if a column contains numbers and letters
-        else returns false
     """
     return any(str(c).isalpha() for c in column) and any(str(c).isdigit() for c in column)
