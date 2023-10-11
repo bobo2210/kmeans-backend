@@ -34,7 +34,7 @@ def data_check(dataframe,tasks, task_id):
         columns_to_drop = [col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])]
         # Löscht die ausgewählten Spalten
         cleaned_df = cleaned_df.drop(columns=columns_to_drop)
-        if columns_to_drop: 
+        if columns_to_drop:
             tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
 
         # Filtern der kategorischen Spalten und Durchführung von OHE
