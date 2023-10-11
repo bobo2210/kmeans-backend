@@ -1,15 +1,15 @@
 """Module providing Function to run Webserver/API """
 import json
 import uuid
-import io
 import threading
+import pandas as pd
 from urllib.parse import unquote
 from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import pandas as pd
 from app.kmeans_methods import run_kmeans_one_k, run_kmeans_elbow
+from app.utils import read_file
 
 
 app = FastAPI()
@@ -110,8 +110,7 @@ async def kmeans_start(file: UploadFile,
         "status": "processing",
         "method": "one_k",
         "Datenpunkte": dataframe,
-        "results": [],
-        "centroid_positions": [],
+        "json_result": {},
         "inertia_values": [],
         "message": ""}
 
@@ -209,8 +208,7 @@ async def elbow_start(file: UploadFile,
         "status": "processing",
         "method": "elbow",
         "Datenpunkte": dataframe,
-        "results": [],
-        "centroid_positions": [],
+        "json_result": {},
         "inertia_values": [],
         "message": ""}
 
@@ -253,106 +251,20 @@ async def get_task_result(task_id: str):
     """
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
+
     task_status = tasks[task_id]["status"]
-    task_result = tasks[task_id]["results"]
+    task_result = tasks[task_id]["json_result"]
     task_inertias = tasks[task_id]["inertia_values"]
+
     if task_status != "completed":
         if task_status == "Bad Request":
             raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
         raise HTTPException(status_code=400, detail="Task result not available yet")
 
     if tasks[task_id]["method"] == "one_k":
-        return {"result": task_result.tolist()}
+        return task_result
     if tasks[task_id]["method"] == "elbow":
         return {"elbow": task_inertias}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
-
-
-def read_file(file, filename):
-    """
-        function to read data out of file in a dataframe
-    """
-    if filename.endswith(".json"):
-
-        #json Datei öffnen
-        with file as json_file:
-            data = json.load(json_file)
-
-        # Zugriff auf die Datenpunkte
-        data_points = data.get("data_points", [])
-
-        # Erstellen eines  Pandas DataFrame
-        dataframe = pd.DataFrame(data_points)
-        return dataframe
-    if filename.endswith(".csv"):
-        # Read the uploaded CSV file
-        csv_data = file.read()
-        # Create a DataFrame from the CSV data
-           # Versuche, das Trennzeichen automatisch zu erkennen
-        try:
-            dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), delimiter=None)
-        except pd.errors.ParserError:
-            # Wenn das automatische Erkennen fehlschlägt, verwende ';' als Fallback-Trennzeichen
-            dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";")
-        return dataframe
-    if filename.endswith(".xlsx"):
-        # Read the uploaded Excel file
-        excel_data = file.read()
-
-        # Verwende pandas, um die Excel-Datei einzulesen
-        dataframe = pd.read_excel(io.BytesIO(excel_data), engine='openpyxl')
-        return dataframe
-    return {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
-
-async def dataframe_to_json_file(currenttaskid, dataframe, array, arrayofarrays):
-    """
-    merges dataframe to a json with the current id in the name 
-        
-    Returns:
-        json for frontend
-    """
-    # JSON erstellen
-    filename = 'data'+str(currenttaskid)
-    fileend = '.json'
-    output_file = filename + fileend
-
-    #cluster den punkten zuordnen
-    dataframe['cluster']=array
-
-    #Daten zusammenführen
-    output_data = {
-        'coordinates_and_cluster': dataframe.to_dict(orient='records'),  # Konvertieren des DataFrame in ein Dictionary
-        'centroids': arrayofarrays
-    }
-
-    # Speichern Sie die Daten in einer JSON-Datei
-    with open(output_file, 'w', encoding='utf-8') as json_file:
-        json.dump(output_data, json_file, indent=4)
-
-    return output_file
-
-async def dataframe_to_json_str(dataframe, cluster_labels, centroids):
-    """
-    merges dataframe to a json str  
-        
-    Returns:
-        json str for frontend
-    """
-    data = []
-
-    unique_clusters = set(cluster_labels)
-
-    for cluster in unique_clusters:
-        cluster_data = {
-            "centroids": centroids[cluster],
-            "data_points": dataframe[cluster_labels == cluster].values.tolist()
-        }
-        data.append(cluster_data)
-
-    result = {
-        "data_Points": data
-    }
-
-    return json.dumps(result, indent=2)

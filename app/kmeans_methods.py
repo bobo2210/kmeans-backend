@@ -2,7 +2,10 @@
 Module for k-means clustering methods.
 """
 
+import json
 from sklearn.cluster import KMeans
+from app.datacheck import data_check
+from app.utils import dataframe_to_json_str
 
 # pylint: disable=too-many-arguments,inconsistent-return-statements
 def run_kmeans_one_k(dataframe,
@@ -28,7 +31,7 @@ def run_kmeans_one_k(dataframe,
               If the uploaded file is not a CSV, an error message is returned.
     """
     #Dateicheck einfuegen
-    dataframe = main.data_check(dataframe, tasks, taskid)
+    #dataframe = data_check(dataframe, tasks, task_id)
 
     kmeans = None
     if initialisation in ("k-means++","random"):
@@ -60,8 +63,9 @@ def run_kmeans_one_k(dataframe,
         # Update the task with the "completed" status and the results
         if tasks[task_id]["method"] == "one_k":
             tasks[task_id]["status"] = "completed"
-            tasks[task_id]["results"] = kmeans.labels_
-            tasks[task_id]["centroid_positions"] = kmeans.cluster_centers_
+            result_to_json = dataframe_to_json_str(dataframe, kmeans.labels_, kmeans.cluster_centers_)
+            json_string = json.loads(result_to_json)
+            tasks[task_id]["json_result"] = json_string
         elif  tasks[task_id]["method"] == "elbow":
             return kmeans.inertia_
     except ValueError as exception:
