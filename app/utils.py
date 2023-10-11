@@ -102,7 +102,7 @@ def elbow_to_json(k_min, k_max, elbow):
     data = {}
 
     for k in range(k_min, k_max + 1):
-        data[k] = elbow[k - Kmin]
+        data[k] = elbow[k - k_min]
 
     # Konvertiere das Dictionary in einen  JSON-String
     json_string = json.dumps(data, indent=4)
