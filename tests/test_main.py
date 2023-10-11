@@ -25,7 +25,7 @@ WRONGFILEPATH = "tests/kmeans_test.error"
 if not os.path.exists(TESTFILEPATH):
     raise FileNotFoundError(f"File not found: {TESTFILEPATH}")
 
-# pylint: disable=toomany-arguments,too-many-locals, line-too-long
+# pylint: disable=line-too-long
 def test_upload_json_and_check_task_status():
     """test upload valid file and check response"""
     # Test uploading a JSON file
