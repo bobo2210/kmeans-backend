@@ -28,7 +28,8 @@ def run_kmeans_one_k(dataframe,
               If the uploaded file is not a CSV, an error message is returned.
     """
     #Dateicheck einfuegen
-    #dataframe_clean = main.data_check(dataframe)
+    dataframe = main.data_check(dataframe, tasks, taskid)
+
     kmeans = None
     if initialisation in ("k-means++","random"):
         # Instantiate sklearn's k-means using num_clusters clusters
