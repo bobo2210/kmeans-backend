@@ -20,18 +20,22 @@ def data_check(dataframe,tasks, task_id):
         cleaned_df (pd.DataFrame): The cleaned CSV data.
     """
     try:
+        tasks[task_id]["status"] = "Data Preparation"
         # Löscht alle Zeilen mit null-Werten
         cleaned_df = dataframe.dropna()
 
         # Löscht alle Zeilen mit nicht alphanumerischen Werten
         for column in cleaned_df.columns:
             cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
+            tasks[task_id]["message"] += "Removed rows with non-alphanumeric values. "
 
         #löscht alle Zeilen, die Buchstaben UND Zanhlen enthalten
-        # Iterieren Sie über die Spalten und erstellen Sie eine Liste der zu löschenden Spalten
+        # Iteriert über die Spalten und erstellt eine Liste der zu löschenden Spalten
         columns_to_drop = [col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])]
-        # Löschen Sie die ausgewählten Spalten
+        # Löscht die ausgewählten Spalten
         cleaned_df = cleaned_df.drop(columns=columns_to_drop)
+        if columns_to_drop: 
+            tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
 
         # Filtern der kategorischen Spalten und Durchführung von OHE
         # Filter columns by data type (categorical)
@@ -49,6 +53,8 @@ def data_check(dataframe,tasks, task_id):
         # Concatenate encoded DataFrame with the original DataFrame
         cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
 
+        tasks[task_id]["message"] += "One-Hot encoded). "
+
         # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
         #numerical_columns = cleaned_df.select_dtypes(include=['int', 'float']).columns
         #scaler = StandardScaler()
@@ -58,6 +64,7 @@ def data_check(dataframe,tasks, task_id):
         numerical_columns = cleaned_df.select_dtypes(include=['int', 'float']).columns
         scaler = MinMaxScaler()  # Min-Max-Skalierung anstelle von Standardisierung
         cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
+        tasks[task_id]["message"] += "Min-Max scaled). "
 
         return cleaned_df
     except Exception as exception:
