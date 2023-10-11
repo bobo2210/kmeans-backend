@@ -29,8 +29,9 @@ def data_check(dataframe,tasks, task_id):
 
         #löscht alle Zeilen, die Buchstaben UND Zanhlen enthalten
         # Iterieren Sie über die Spalten und erstellen Sie eine Liste der zu löschenden Spalten
+        columns_to_drop = [col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])]
         # Löschen Sie die ausgewählten Spalten
-        cleaned_df = cleaned_df.drop(columns=[col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])])
+        cleaned_df = cleaned_df.drop(columns=columns_to_drop)
 
         # Filtern der kategorischen Spalten und Durchführung von OHE
         # Filter columns by data type (categorical)
