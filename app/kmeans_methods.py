@@ -4,10 +4,10 @@ Module for k-means clustering methods.
 
 import json
 from sklearn.cluster import KMeans
-from app.datacheck import data_check
 from app.utils import dataframe_to_json_str
+#from app.datacheck import data_check
 
-# pylint: disable=too-many-arguments,inconsistent-return-statements
+# pylint: disable=too-many-arguments,inconsistent-return-statements, line-too-long
 def run_kmeans_one_k(dataframe,
                     task_id,
                     tasks,
