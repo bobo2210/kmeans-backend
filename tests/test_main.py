@@ -20,7 +20,7 @@ test_params = {
 # Pfad zur Datei, die du senden möchtest
 TESTFILEPATH = "tests/kmeans_test.json"
 WRONGFILEPATH = "tests/kmeans_test.error"
--
+
 # Überprüfe den Dateipfad
 if not os.path.exists(TESTFILEPATH):
     raise FileNotFoundError(f"File not found: {TESTFILEPATH}")
