@@ -62,10 +62,10 @@ def run_kmeans_one_k(dataframe,
         kmeans.fit(dataframe.values)
         # Update the task with the "completed" status and the results
         if tasks[task_id]["method"] == "one_k":
-            tasks[task_id]["status"] = "completed"
             result_to_json = dataframe_to_json_str(dataframe, kmeans.labels_, kmeans.cluster_centers_)
             json_string = json.loads(result_to_json)
             tasks[task_id]["json_result"] = json_string
+            tasks[task_id]["status"] = "completed"
         elif  tasks[task_id]["method"] == "elbow":
             return kmeans.inertia_
     except ValueError as exception:
