@@ -6,7 +6,6 @@ Module containing different methods
 import json
 import io
 import pandas as pd
-import csv
 
 
 def dataframe_to_json_str(dataframe, cluster_labels, centroids):
@@ -54,9 +53,6 @@ def read_file(file, filename):
         # Read the uploaded CSV file
         csv_data = file.read().decode('utf-8')
 
-        # Erstelle ein StringIO-Objekt mit Universal-Newline-Modus
-        csv_buffer = io.StringIO(csv_data, newline='')
-
         # Versuche, das Trennzeichen automatisch zu erkennen
         try:
             dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=None)
@@ -73,8 +69,11 @@ def read_file(file, filename):
         return dataframe
     return {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
 
+# pylint: disable=too-many-arguments
 def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm):
-
+    """
+        checking the params for kmeans
+    """
 
     error_message = ""
     if not isinstance(number_runs, int) and number_runs != 'auto':
@@ -95,14 +94,14 @@ def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algor
 
     return error_message
 
-def elbow_to_json(Kmin, Kmax, elbow):
+def elbow_to_json(k_min, k_max, elbow):
     """
         function to store elbow data in json string
     """
     # Erstelle ein leeres Dictionary, um die Daten zu speichern
-    data = {}  
+    data = {}
 
-    for k in range(Kmin, Kmax + 1):
+    for k in range(k_min, k_max + 1):
         data[k] = elbow[k - Kmin]
 
     # Konvertiere das Dictionary in einen  JSON-String
