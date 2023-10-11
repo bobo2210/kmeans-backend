@@ -26,7 +26,7 @@ def dataframe_to_json_str(dataframe, cluster_labels, centroids):
         data.append(cluster_data)
 
     result = {
-        "data_Points": data
+        "Cluster": data
     }
 
     return json.dumps(result, indent=2)
