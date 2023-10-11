@@ -8,7 +8,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 # pylint: disable=broad-exception-caught
 
-async def data_check(dataframe, task_id):
+async def data_check(dataframe,tasks, task_id):
     """
     Checks a dataframe and clears it for clustering
 
