@@ -8,7 +8,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 # pylint: disable=broad-exception-caught
 
-async def data_check(dataframe,tasks, task_id):
+def data_check(dataframe,tasks, task_id):
     """
     Checks a dataframe and clears it for clustering
 
@@ -28,9 +28,9 @@ async def data_check(dataframe,tasks, task_id):
             cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
 
         #löscht alle Zeilen, die Buchstaben UND Zanhlen enthalten
-        for column in cleaned_df.columns:
-            if contains_numbers_and_letters(cleaned_df[column]).any():
-                cleaned_df.drop(column, axis=1, inplace=True)
+        # Iterieren Sie über die Spalten und erstellen Sie eine Liste der zu löschenden Spalten
+        # Löschen Sie die ausgewählten Spalten
+        cleaned_df = cleaned_df.drop(columns=[col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])])
 
         # Filtern der kategorischen Spalten und Durchführung von OHE
         # Filter columns by data type (categorical)
@@ -65,7 +65,7 @@ async def data_check(dataframe,tasks, task_id):
         tasks[task_id]["message"] += str("Datapreparation: " + exception)
         return None
 
-async def contains_numbers_and_letters(column):
+def contains_numbers_and_letters(column):
     """
     Checks if a column contains numbers and letters 
         
@@ -73,4 +73,4 @@ async def contains_numbers_and_letters(column):
         true if a column contains numbers and letters
         else returns false
     """
-    return column.str.contains(r'[0-9]') & column.str.contains(r'[a-zA-Z]')
+    return any(str(c).isalpha() for c in column) and any(str(c).isdigit() for c in column)
