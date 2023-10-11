@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import OneHotEncoder
 
-# pylint: disable=broad-exception-caught
+# pylint: disable=broad-exception-caught,line-too-long
 
 def data_check(dataframe,tasks, task_id):
     """
