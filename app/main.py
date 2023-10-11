@@ -306,7 +306,7 @@ def read_file(file, filename):
         return dataframe
     return {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
 
-async def dataframe_to_json(currenttaskid, dataframe, array, arrayofarrays):
+async def dataframe_to_json_file(currenttaskid, dataframe, array, arrayofarrays):
     """
     merges two dataframes to a json with the current id in the name 
         
@@ -330,9 +330,38 @@ async def dataframe_to_json(currenttaskid, dataframe, array, arrayofarrays):
     # Speichern Sie die Daten in einer JSON-Datei
     with open(output_file, 'w', encoding='utf-8') as json_file:
         json.dump(output_data, json_file, indent=4)
-    # Erstes DataFrame in JSON speichern (Überschreiben, falls die Datei existiert)
-    #dataframe1.to_json(output_file, orient='records')
-    # Zweites DataFrame in JSON speichern (Anhängen, falls die Datei existiert)
-    #dataframe2.to_json(output_file, orient='records', lines=True, mode='a')
-    # return JSON
+
     return output_file
+
+async def dataframe_to_json_str(currenttaskid, dataframe, array, arrayofarrays):
+    """
+    merges two dataframes to a json str with the current id in the name 
+        
+    Returns:
+        json str for frontend
+    """
+    # Gruppieren der data_points nach Clustern
+    clustered_data = {}
+    for i, cluster_id in enumerate(array):
+        if cluster_id not in clustered_data:
+            clustered_data[cluster_id] = []
+        clustered_data[cluster_id].append(arrayofarrays[i])
+
+    # Die Daten im gewünschten Format vorbereiten
+    data_points_list = []
+    for cluster_id, data_points in clustered_data.items():
+        data_points_item = {
+            "centroids": arrayofarrays[cluster_id],  # Annahme: arrayofarrays enthält die Centroids
+            "data_points": data_points
+        }
+        data_points_list.append(data_points_item)
+
+    # Das gewünschte Format vorbereiten
+    output_data = {
+        "data_Points": data_points_list
+    }
+
+    # JSON-String erstellen
+    json_string = json.dumps(output_data, indent=4, ensure_ascii=False)
+
+    return json_string
