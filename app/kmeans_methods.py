@@ -83,7 +83,7 @@ def run_kmeans_elbow(dataframe,
     Performs kmeans for elbow method
     """
 
-    #k_min = max(k_min, 1)
+    k_min = max(k_min, 1)
     k_values = range(k_min, k_max + 1)
     inertia_values = []
 

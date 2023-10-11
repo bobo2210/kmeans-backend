@@ -70,39 +70,23 @@ async def kmeans_start(file: UploadFile,
               If the uploaded file is not a json or csv, an error message is returned.
     """
 
-    if file.filename.endswith(".json"):
+    result = read_file(file.file, file.filename)
 
-        #json Datei öffnen
-        with file.file as json_file:
-            data = json.load(json_file)
-
-        #Zugriff auf die Centroids für K-Means
-        centroids_start = data.get("centroids", None)
-
-        # Zugriff auf die Datenpunkte
-        data_points = data.get("data_points", [])
-
-        # Erstellen eines  Pandas DataFrame
-        dataframe = pd.DataFrame(data_points)
-    elif file.filename.endswith(".csv"):
-        centroids_start = None
-        # Read the uploaded CSV file
-        csv_data = await file.read()
-        # Create a DataFrame from the CSV data
-        dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";")
+    if isinstance(result, pd.DataFrame):
+        dataframe = result
     else:
-        return {"error": "Die hochgeladene Datei ist keine json oder csv Datei."}
+        raise HTTPException(status_code=400, detail= result)
 
     if number_kmeans_runs.isdigit():
         number_runs = int(number_kmeans_runs)
     else:
         number_runs = number_kmeans_runs
 
-    if centroids is not None:
-        try:
-            centroids_start = json.loads(unquote(centroids))
-        except json.JSONDecodeError as exception:
-            raise HTTPException(status_code=400, detail= str(exception)) from exception
+    #if centroids is not None:
+    #    try:
+    #       centroids_start = json.loads(unquote(centroids))
+    #  except json.JSONDecodeError as exception:
+    #     raise HTTPException(status_code=400, detail= str(exception)) from exception
 
     error_message = ""
     if not isinstance(number_runs, int) and number_runs != 'auto':
@@ -111,7 +95,7 @@ async def kmeans_start(file: UploadFile,
         error_message += ("The k-value has to be an integer"
                           " and smaller than the number of datapoints. ")
     if (init not in ("k-means++","random", "centroids") or
-        (init == "centroids" and (centroids is None and centroids_start is None))):
+        (init == "centroids" and centroids is None)):
         error_message += ("The parameter init has to be k-means++, random or centroids"
                           " in combination with a specification"
                           " of the initial centroid positions. ")
@@ -133,7 +117,7 @@ async def kmeans_start(file: UploadFile,
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=(
-        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids_start))
+        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids))
     kmeans_thread.start()
 
     return {"TaskID": task_id}
@@ -184,40 +168,16 @@ async def elbow_start(file: UploadFile,
         dict: The Id of the task
               If the uploaded file is not a json or csv, an error message is returned.
     """
-
-    if file.filename.endswith(".json"):
-
-        #json Datei öffnen
-        with file.file as json_file:
-            data = json.load(json_file)
-
-        #Zugriff auf die Centroids für K-Means
-        centroids_start = data.get("centroids", None)
-
-        # Zugriff auf die Datenpunkte
-        data_points = data.get("data_points", [])
-
-        # Erstellen eines  Pandas DataFrame
-        dataframe = pd.DataFrame(data_points)
-    elif file.filename.endswith(".csv"):
-        centroids_start = None
-        # Read the uploaded CSV file
-        csv_data = await file.read()
-        # Create a DataFrame from the CSV data
-        dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";")
+    result = read_file(file.file, file.filename)
+    if isinstance(result, pd.DataFrame):
+        dataframe = result
     else:
-        return {"error": "Die hochgeladene Datei ist keine json oder csv Datei."}
-
+        raise HTTPException(status_code=400, detail= result)
+   
     if number_kmeans_runs.isdigit():
         number_runs = int(number_kmeans_runs)
     else:
         number_runs = number_kmeans_runs
-
-    if centroids is not None:
-        try:
-            centroids_start = json.loads(unquote(centroids))
-        except json.JSONDecodeError as exception:
-            raise HTTPException(status_code=400, detail= str(exception)) from exception
 
     error_message = ""
     if not isinstance(number_runs, int) and number_runs != 'auto':
@@ -228,7 +188,7 @@ async def elbow_start(file: UploadFile,
     if k_min > k_max:
         error_message += ("k_min has to be smaller than k_max")
     if (init not in ("k-means++","random", "centroids") or
-        (init == "centroids" and (centroids is None and centroids_start is None))):
+        (init == "centroids" and centroids is None)):
         error_message += ("The parameter init has to be k-means++, random or centroids"
                           " in combination with a specification"
                           " of the initial centroid positions. ")
@@ -250,7 +210,7 @@ async def elbow_start(file: UploadFile,
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
-        dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids_start))
+        dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids))
     kmeans_elbow_thread.start()
 
     return {"TaskID": task_id}
@@ -302,6 +262,44 @@ async def get_task_result(task_id: str):
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
+
+
+def read_file(file, filename):
+    if filename.endswith(".json"):
+
+        #json Datei öffnen
+        with file as json_file:
+            data = json.load(json_file)
+
+        #Zugriff auf die Centroids für K-Means
+        centroids_start = data.get("centroids", None)
+
+        # Zugriff auf die Datenpunkte
+        data_points = data.get("data_points", [])
+
+        # Erstellen eines  Pandas DataFrame
+        dataframe = pd.DataFrame(data_points)
+        return dataframe
+    if filename.endswith(".csv"):
+        centroids_start = None
+        # Read the uploaded CSV file
+        csv_data = file.read()
+        # Create a DataFrame from the CSV data
+           # Versuche, das Trennzeichen automatisch zu erkennen
+        try:
+            dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), delimiter=None)
+        except pd.errors.ParserError:
+            # Wenn das automatische Erkennen fehlschlägt, verwende ';' als Fallback-Trennzeichen
+            dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";")
+        return dataframe
+    if filename.endswith(".xlsx"):
+        # Read the uploaded Excel file
+        excel_data = file.read()
+
+        # Verwende pandas, um die Excel-Datei einzulesen
+        dataframe = pd.read_excel(io.BytesIO(excel_data), engine='openpyxl')
+        return dataframe
+    return {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
 
 async def dataframe_to_json(currenttaskid, dataframe, array, arrayofarrays):
     """
