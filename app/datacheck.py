@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import OneHotEncoder
 
+# pylint: disable=broad-exception-caught
+
 async def data_check(dataframe, task_id):
     """
     Checks a dataframe and clears it for clustering
@@ -20,7 +22,7 @@ async def data_check(dataframe, task_id):
     try:
         # Löscht alle Zeilen mit null-Werten
         cleaned_df = dataframe.dropna()
-        
+
         # Löscht alle Zeilen mit nicht alphanumerischen Werten
         for column in cleaned_df.columns:
             cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
