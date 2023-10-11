@@ -28,7 +28,7 @@ def dataframe_to_json_str(dataframe, cluster_labels, centroids):
         data.append(cluster_data)
 
     result = {
-        "data_Points": data
+        "Cluster": data
     }
 
     return json.dumps(result, indent=2)
@@ -94,3 +94,15 @@ def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algor
                          " ('elkan', 'auto' (deprecated), 'lloyd', 'full' (deprecated)).")
 
     return error_message
+
+def elbow_to_json(Kmin, Kmax, elbow):
+    """
+        function to store elbow data in json string
+    """
+    for k in range(Kmin, Kmax + 1):
+    data[k] = elbow[k - Kmin]
+
+    # Konvertiere das Dictionary in einen  JSON-String
+    json_string = json.dumps(data, indent=4)
+
+    return json_string
