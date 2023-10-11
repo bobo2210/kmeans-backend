@@ -279,7 +279,6 @@ def read_file(file, filename):
         #json Datei öffnen
         with file as json_file:
             data = json.load(json_file)
-            
 
         # Zugriff auf die Datenpunkte
         data_points = data.get("data_points", [])
