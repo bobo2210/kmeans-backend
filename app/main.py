@@ -9,7 +9,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.kmeans_methods import run_kmeans_one_k, run_kmeans_elbow
-from app.utils import read_file
+from app.utils import read_file, check_parameter
 
 
 app = FastAPI()
@@ -88,17 +88,8 @@ async def kmeans_start(file: UploadFile,
         except json.JSONDecodeError as exception:
             raise HTTPException(status_code=400, detail= str(exception)) from exception
 
-    error_message = ""
-    if not isinstance(number_runs, int) and number_runs != 'auto':
-        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
-    if k > len(dataframe) or not isinstance(k, int):
-        error_message += ("The k-value has to be an integer"
-                          " and smaller than the number of datapoints. ")
-    if (init not in ("k-means++","random", "centroids") or
-        (init == "centroids" and centroids is None)):
-        error_message += ("The parameter init has to be k-means++, random or centroids"
-                          " in combination with a specification"
-                          " of the initial centroid positions. ")
+    error_message = check_parameter(centroids, number_runs, dataframe, k, k, init, algorithm)
+
     if error_message != "":
         raise HTTPException(status_code=400, detail= error_message)
 
@@ -184,19 +175,8 @@ async def elbow_start(file: UploadFile,
         except json.JSONDecodeError as exception:
             raise HTTPException(status_code=400, detail= str(exception)) from Exception
 
-    error_message = ""
-    if not isinstance(number_runs, int) and number_runs != 'auto':
-        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
-    if k_min > len(dataframe) or k_max > len(dataframe):
-        error_message += ("The k-value has to be an integer"
-                          " and smaller than the number of datapoints. ")
-    if k_min > k_max:
-        error_message += ("k_min has to be smaller than k_max")
-    if (init not in ("k-means++","random", "centroids") or
-        (init == "centroids" and centroids is None)):
-        error_message += ("The parameter init has to be k-means++, random or centroids"
-                          " in combination with a specification"
-                          " of the initial centroid positions. ")
+    error_message = check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm)
+
     if error_message != "":
         raise HTTPException(status_code=400, detail= error_message)
 

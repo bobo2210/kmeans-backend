@@ -6,6 +6,8 @@ Module containing different methods
 import json
 import io
 import pandas as pd
+import csv
+
 
 def dataframe_to_json_str(dataframe, cluster_labels, centroids):
     """
@@ -50,14 +52,17 @@ def read_file(file, filename):
         return dataframe
     if filename.endswith(".csv"):
         # Read the uploaded CSV file
-        csv_data = file.read()
-        # Create a DataFrame from the CSV data
-           # Versuche, das Trennzeichen automatisch zu erkennen
+        csv_data = file.read().decode('utf-8')
+
+        # Erstelle ein StringIO-Objekt mit Universal-Newline-Modus
+        csv_buffer = io.StringIO(csv_data, newline='')
+
+        # Versuche, das Trennzeichen automatisch zu erkennen
         try:
-            dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=None)
+            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=None)
         except pd.errors.ParserError:
             # Wenn das automatische Erkennen fehlschlägt, verwende ';' als Fallback-Trennzeichen
-            dataframe = pd.read_csv(io.StringIO(csv_data.decode('utf-8')), sep=";")
+            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=";")
         return dataframe
     if filename.endswith(".xlsx"):
         # Read the uploaded Excel file
@@ -67,3 +72,25 @@ def read_file(file, filename):
         dataframe = pd.read_excel(io.BytesIO(excel_data), engine='openpyxl')
         return dataframe
     return {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
+
+def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm):
+
+
+    error_message = ""
+    if not isinstance(number_runs, int) and number_runs != 'auto':
+        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
+    if k_min > len(dataframe) or k_max > len(dataframe):
+        error_message += ("The k-value has to be an integer"
+                          " and smaller than the number of datapoints. ")
+    if k_min > k_max:
+        error_message += ("k_min has to be smaller than k_max")
+    if (init not in ("k-means++","random", "centroids") or
+        (init == "centroids" and centroids is None)):
+        error_message += ("The parameter init has to be k-means++, random or centroids"
+                          " in combination with a specification"
+                          " of the initial centroid positions. ")
+    if algorithm not in ("elkan","auto", "lloyd", "full"):
+        error_message += ("The 'algorithm' parameter of KMeans must be a str among"
+                         " ('elkan', 'auto' (deprecated), 'lloyd', 'full' (deprecated)).")
+
+    return error_message
