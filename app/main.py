@@ -82,11 +82,11 @@ async def kmeans_start(file: UploadFile,
     else:
         number_runs = number_kmeans_runs
 
-    #if centroids is not None:
-    #    try:
-    #       centroids_start = json.loads(unquote(centroids))
-    #  except json.JSONDecodeError as exception:
-    #     raise HTTPException(status_code=400, detail= str(exception)) from exception
+    if centroids is not None:
+        try:
+           centroids = json.loads(unquote(centroids))
+      except json.JSONDecodeError as exception:
+         raise HTTPException(status_code=400, detail= str(exception)) from exception
 
     error_message = ""
     if not isinstance(number_runs, int) and number_runs != 'auto':
@@ -173,11 +173,17 @@ async def elbow_start(file: UploadFile,
         dataframe = result
     else:
         raise HTTPException(status_code=400, detail= result)
-   
+
     if number_kmeans_runs.isdigit():
         number_runs = int(number_kmeans_runs)
     else:
         number_runs = number_kmeans_runs
+
+    if centroids is not None:
+        try:
+            centroids = json.loads(unquote(centroids))
+        except json.JSONDecodeError as exception:
+            raise HTTPException(status_code=400, detail= str(exception)) from Exception
 
     error_message = ""
     if not isinstance(number_runs, int) and number_runs != 'auto':
@@ -265,14 +271,15 @@ if __name__ == '__main__':
 
 
 def read_file(file, filename):
+    """
+        function to read data out of file in a dataframe
+    """
     if filename.endswith(".json"):
 
         #json Datei öffnen
         with file as json_file:
             data = json.load(json_file)
-
-        #Zugriff auf die Centroids für K-Means
-        centroids_start = data.get("centroids", None)
+            
 
         # Zugriff auf die Datenpunkte
         data_points = data.get("data_points", [])
@@ -281,7 +288,6 @@ def read_file(file, filename):
         dataframe = pd.DataFrame(data_points)
         return dataframe
     if filename.endswith(".csv"):
-        centroids_start = None
         # Read the uploaded CSV file
         csv_data = file.read()
         # Create a DataFrame from the CSV data
