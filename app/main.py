@@ -152,6 +152,7 @@ async def elbow_start(file: UploadFile,
 
         algorithm (str) ("lloyd", "elkan", "auto", "full"): "lloyd"
 
+
         Centroids JSON string containing the array of arrays of the initial centroid positions
 
     Returns:
@@ -198,6 +199,7 @@ async def elbow_start(file: UploadFile,
     kmeans_elbow_thread.start()
 
     return {"TaskID": task_id}
+
 
 
 @app.get("/kmeans/status/{task_id}")
