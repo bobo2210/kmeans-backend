@@ -4,7 +4,11 @@
 import pandas as pd
 from app.kmeans_methods import run_kmeans_one_k
 
+# pylint: disable=unused-variable
 def test_valid_input_kmeans_plusplus():
+    """
+    Test valid input
+    """
     data = pd.DataFrame({
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
@@ -18,6 +22,7 @@ def test_valid_input_kmeans_plusplus():
     assert "json_result" in tasks[task_id]
     assert tasks[task_id]["json_result"]["n_clusters"] == 2
 
+# pylint: disable=unused-variable
 def test_valid_input_random_initialization():
     """
     Test random initialisation
@@ -35,6 +40,7 @@ def test_valid_input_random_initialization():
     assert "json_result" in tasks[task_id]
     assert tasks[task_id]["json_result"]["n_clusters"] == 3
 
+# pylint: disable=unused-variable
 def test_valid_input_centroids_initialization():
     """
     Test valid input for centroids
@@ -54,6 +60,7 @@ def test_valid_input_centroids_initialization():
     assert "json_result" in tasks[task_id]
     assert tasks[task_id]["json_result"]["n_clusters"] == 2
 
+# pylint: disable=unused-variable
 def test_invalid_initialization_method():
     """
     Test invalid initialisation
@@ -69,6 +76,7 @@ def test_invalid_initialization_method():
                               initialisation="invalid_method", used_algorithm="full")
     assert tasks[task_id]["status"] == "Bad Request"
 
+# pylint: disable=unused-variable
 def test_invalid_data():
     """
     Test invalid data
