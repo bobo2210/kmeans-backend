@@ -31,7 +31,9 @@ def run_kmeans_one_k(dataframe,
               If the uploaded file is not a CSV, an error message is returned.
     """
     #Dateicheck einfuegen
+    #tasks[task_id]["status"] = "Preparing Data..."
     #dataframe = main.data_check(dataframe, tasks, taskid)
+    #tasks[task_id]["status"] = "Data prepared. Processing..."
 
     kmeans = None
     if initialisation in ("k-means++","random"):
