@@ -13,7 +13,7 @@ def test_valid_input_kmeans_plusplus():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-    
+
     tasks = {}
     tasks[1] = {
         "status": "processing",
@@ -40,7 +40,7 @@ def test_valid_input_random_initialization():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-    
+
     tasks = {}
     tasks[1] = {
         "status": "processing",
@@ -96,7 +96,7 @@ def test_invalid_initialization_method():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-    
+
     tasks = {}
     tasks[1] = {
         "status": "processing",
@@ -121,7 +121,7 @@ def test_invalid_data():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-    
+
     tasks = {}
     tasks[1] = {
         "status": "processing",
