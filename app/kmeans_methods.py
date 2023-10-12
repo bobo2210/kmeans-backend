@@ -7,7 +7,7 @@ Module for k-means clustering methods.
 import json
 from sklearn.cluster import KMeans
 from app.utils import dataframe_to_json_str, elbow_to_json
-#from app.datacheck import data_check
+from app.datacheck import data_check
 
 # pylint: disable=too-many-arguments,inconsistent-return-statements, line-too-long
 def run_kmeans_one_k(dataframe,
@@ -34,7 +34,7 @@ def run_kmeans_one_k(dataframe,
     """
     #Dateicheck einfuegen
     #tasks[task_id]["status"] = "Preparing Data..."
-    #dataframe = main.data_check(dataframe, tasks, taskid)
+    dataframe = data_check(dataframe, tasks, taskid)
     #tasks[task_id]["status"] = "Data prepared. Processing..."
 
     kmeans = None
