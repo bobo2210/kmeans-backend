@@ -57,6 +57,7 @@ def run_kmeans_one_k(dataframe,
     if kmeans is None:
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] = str(initialisation)
+        return
     try:
         # execute k-means algorithm
         kmeans.fit(dataframe.values)

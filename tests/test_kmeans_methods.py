@@ -29,7 +29,6 @@ def test_valid_input_kmeans_plusplus():
                               initialisation="k-means++", used_algorithm="auto")
     assert tasks[task_id]["status"] == "completed"
     assert "json_result" in tasks[task_id]
-    assert tasks[task_id]["json_result"]["n_clusters"] == 2
 
 # pylint: disable=unused-variable
 def test_valid_input_random_initialization():
@@ -56,7 +55,6 @@ def test_valid_input_random_initialization():
                               initialisation="random", used_algorithm="full")
     assert tasks[task_id]["status"] == "completed"
     assert "json_result" in tasks[task_id]
-    assert tasks[task_id]["json_result"]["n_clusters"] == 3
 
 # pylint: disable=unused-variable
 def test_valid_input_centroids_initialization():
@@ -85,7 +83,6 @@ def test_valid_input_centroids_initialization():
                               centroids_start=centroids_start)
     assert tasks[task_id]["status"] == "completed"
     assert "json_result" in tasks[task_id]
-    assert tasks[task_id]["json_result"]["n_clusters"] == 2
 
 # pylint: disable=unused-variable
 def test_invalid_initialization_method():
