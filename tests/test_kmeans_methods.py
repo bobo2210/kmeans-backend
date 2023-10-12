@@ -1,5 +1,5 @@
 import pandas as pd
-from your_module import run_kmeans_one_k
+from app.kmeans_methods import run_kmeans_one_k
 
 def test_valid_input_kmeans_plusplus():
     data = pd.DataFrame({
