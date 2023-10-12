@@ -4,7 +4,7 @@ Module for k-means clustering methods.
 
 import json
 from sklearn.cluster import KMeans
-from app.utils import dataframe_to_json_str
+from app.utils import dataframe_to_json_str, elbow_to_json
 #from app.datacheck import data_check
 
 # pylint: disable=too-many-arguments,inconsistent-return-statements, line-too-long
@@ -106,5 +106,7 @@ def run_kmeans_elbow(dataframe,
                                     centroids_start)
         inertia_values.append(inertia)
 
+    elbow_json = elbow_to_json(k_min, k_max, inertia_values)
+    json_string = json.loads(elbow_json)
+    tasks[task_id]["json_inertia"] = json_string
     tasks[task_id]["status"] = "completed"
-    tasks[task_id]["inertia_values"] = inertia_values

@@ -102,7 +102,7 @@ async def kmeans_start(file: UploadFile,
         "method": "one_k",
         "Datenpunkte": dataframe,
         "json_result": {},
-        "inertia_values": [],
+        "json_inertia": {},
         "message": ""}
 
     # Create a separate thread to run run_kmeans_one_k
@@ -190,7 +190,7 @@ async def elbow_start(file: UploadFile,
         "method": "elbow",
         "Datenpunkte": dataframe,
         "json_result": {},
-        "inertia_values": [],
+        "json_inertia": {},
         "message": ""}
 
     # Create a separate thread to run run_kmeans_one_k
@@ -236,7 +236,7 @@ async def get_task_result(task_id: str):
 
     task_status = tasks[task_id]["status"]
     task_result = tasks[task_id]["json_result"]
-    task_inertias = tasks[task_id]["inertia_values"]
+    task_inertias = tasks[task_id]["json_inertia"]
 
     if task_status != "completed":
         if task_status == "Bad Request":
@@ -246,7 +246,7 @@ async def get_task_result(task_id: str):
     if tasks[task_id]["method"] == "one_k":
         return task_result
     if tasks[task_id]["method"] == "elbow":
-        return {"elbow": task_inertias}
+        return task_inertias
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
