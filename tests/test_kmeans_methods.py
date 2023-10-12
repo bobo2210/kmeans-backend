@@ -1,3 +1,6 @@
+"""
+    Testing kmeans methods with pylint
+"""
 import pandas as pd
 from app.kmeans_methods import run_kmeans_one_k
 
@@ -16,6 +19,9 @@ def test_valid_input_kmeans_plusplus():
     assert tasks[task_id]["json_result"]["n_clusters"] == 2
 
 def test_valid_input_random_initialization():
+    """
+    Test random initialisation
+    """
     data = pd.DataFrame({
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
@@ -30,6 +36,9 @@ def test_valid_input_random_initialization():
     assert tasks[task_id]["json_result"]["n_clusters"] == 3
 
 def test_valid_input_centroids_initialization():
+    """
+    Test valid input for centroids
+    """
     data = pd.DataFrame({
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
@@ -46,6 +55,9 @@ def test_valid_input_centroids_initialization():
     assert tasks[task_id]["json_result"]["n_clusters"] == 2
 
 def test_invalid_initialization_method():
+    """
+    Test invalid initialisation
+    """
     data = pd.DataFrame({
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
@@ -58,6 +70,9 @@ def test_invalid_initialization_method():
     assert tasks[task_id]["status"] == "Bad Request"
 
 def test_invalid_data():
+    """
+    Test invalid data
+    """
     invalid_data = pd.DataFrame({'col1': [1, 2, 3], 'col2': [4, 5]})
     tasks = {}
     task_id = 1
