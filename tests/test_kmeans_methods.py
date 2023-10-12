@@ -13,7 +13,15 @@ def test_valid_input_kmeans_plusplus():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-    tasks = {}
+
+    tasks[1] = {
+        "status": "processing",
+        "method": "one_k",
+        "Datenpunkte": dataframe,
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
     task_id = 1
     result = run_kmeans_one_k(data, task_id, tasks, k_value=2,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
@@ -31,7 +39,15 @@ def test_valid_input_random_initialization():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-    tasks = {}
+
+    tasks[1] = {
+        "status": "processing",
+        "method": "one_k",
+        "Datenpunkte": dataframe,
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
     task_id = 1
     result = run_kmeans_one_k(data, task_id, tasks, k_value=3,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
@@ -50,7 +66,15 @@ def test_valid_input_centroids_initialization():
         'y': [5, 4, 3, 2, 1]
     })
     centroids_start = [[1, 5], [5, 1]]
-    tasks = {}
+
+    tasks[1] = {
+        "status": "processing",
+        "method": "one_k",
+        "Datenpunkte": dataframe,
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
     task_id = 1
     result = run_kmeans_one_k(data, task_id, tasks, k_value=2,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
@@ -69,7 +93,15 @@ def test_invalid_initialization_method():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-    tasks = {}
+
+    tasks[1] = {
+        "status": "processing",
+        "method": "one_k",
+        "Datenpunkte": dataframe,
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
     task_id = 1
     result = run_kmeans_one_k(data, task_id, tasks, k_value=2,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
@@ -81,10 +113,21 @@ def test_invalid_data():
     """
     Test invalid data
     """
-    invalid_data = pd.DataFrame({'col1': [1, 2, 3], 'col2': [4, 5]})
-    tasks = {}
+    data = pd.DataFrame({
+        'x': [1, 2, 3, 4, 5],
+        'y': [5, 4, 3, 2, 1]
+    })
+
+    tasks[1] = {
+        "status": "processing",
+        "method": "one_k",
+        "Datenpunkte": dataframe,
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
     task_id = 1
-    result = run_kmeans_one_k(invalid_data, task_id, tasks, k_value=2,
+    result = run_kmeans_one_k(data, task_id, tasks, k_value=2,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
-                              initialisation="k-means++", used_algorithm="auto")
+                              initialisation="k-means++", used_algorithm="false")
     assert tasks[task_id]["status"] == "Bad Request"
