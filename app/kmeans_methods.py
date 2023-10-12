@@ -34,7 +34,7 @@ def run_kmeans_one_k(dataframe,
     """
     #Dateicheck einfuegen
     #tasks[task_id]["status"] = "Preparing Data..."
-    dataframe = data_check(dataframe, tasks, taskid)
+    dataframe = data_check(dataframe, tasks, task_id)
     #tasks[task_id]["status"] = "Data prepared. Processing..."
 
     kmeans = None
