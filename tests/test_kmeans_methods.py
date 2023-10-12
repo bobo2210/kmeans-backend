@@ -13,11 +13,12 @@ def test_valid_input_kmeans_plusplus():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-
+    
+    tasks = {}
     tasks[1] = {
         "status": "processing",
         "method": "one_k",
-        "Datenpunkte": dataframe,
+        "Datenpunkte": data,
         "json_result": {},
         "inertia_values": [],
         "message": ""}
@@ -39,11 +40,12 @@ def test_valid_input_random_initialization():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-
+    
+    tasks = {}
     tasks[1] = {
         "status": "processing",
         "method": "one_k",
-        "Datenpunkte": dataframe,
+        "Datenpunkte": data,
         "json_result": {},
         "inertia_values": [],
         "message": ""}
@@ -67,10 +69,11 @@ def test_valid_input_centroids_initialization():
     })
     centroids_start = [[1, 5], [5, 1]]
 
+    tasks = {}
     tasks[1] = {
         "status": "processing",
         "method": "one_k",
-        "Datenpunkte": dataframe,
+        "Datenpunkte": data,
         "json_result": {},
         "inertia_values": [],
         "message": ""}
@@ -93,11 +96,12 @@ def test_invalid_initialization_method():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-
+    
+    tasks = {}
     tasks[1] = {
         "status": "processing",
         "method": "one_k",
-        "Datenpunkte": dataframe,
+        "Datenpunkte": data,
         "json_result": {},
         "inertia_values": [],
         "message": ""}
@@ -117,11 +121,12 @@ def test_invalid_data():
         'x': [1, 2, 3, 4, 5],
         'y': [5, 4, 3, 2, 1]
     })
-
+    
+    tasks = {}
     tasks[1] = {
         "status": "processing",
         "method": "one_k",
-        "Datenpunkte": dataframe,
+        "Datenpunkte": data,
         "json_result": {},
         "inertia_values": [],
         "message": ""}
