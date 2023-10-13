@@ -120,11 +120,11 @@ async def kmeans_start(file: UploadFile,
         "inertia_values": [],
         "message": ""}
 
-    json_upload = {
+    data_upload = {
         "status": "processing",
         "method": "one_k"}
 
-    redis_client.hmset(task_id, json_upload)
+    redis_client.hmset(task_id, data_upload)
     redis_client.expire(task_id,600)
 
     # Create a separate thread to run run_kmeans_one_k
@@ -225,18 +225,16 @@ async def elbow_start(file: UploadFile,
         "inertia_values": [],
         "message": ""}
 
-    json_upload = {
+    data_upload = {
         "status": "processing",
         "method": "elbow",
-        "json_result": {},
-        "inertia_values": [],
-        "message": ""}
+  }
 
-    redis_client.hmset(task_id,json_upload)
+    redis_client.hmset(task_id,data_upload)
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
-        dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids))
+        redis_client, dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids))
     kmeans_elbow_thread.start()
 
     return {"TaskID": task_id}
@@ -258,7 +256,7 @@ async def get_task_status(task_id: str):
         raise HTTPException(status_code=404, detail="Task not found")
     if task_status == "Bad Request":
         raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
-    return {"status": task_status[0]}
+    return {"status": task_status}
 
 @app.get("/kmeans/result/{task_id}")
 async def get_task_result(task_id: str):
@@ -286,7 +284,7 @@ async def get_task_result(task_id: str):
     if task_method == "one_k":
         task_result = redis_client.hget(task_id,'json_result')
         return  json.loads(task_result)
-    if task_method[0] == "elbow":
+    if task_method == "elbow":
         task_inertias = redis_client.hget(task_id,'inertia_values')
         return {"elbow": task_inertias}
 

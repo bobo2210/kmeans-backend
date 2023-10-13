@@ -42,8 +42,7 @@ def run_kmeans_one_k(redis_client,
             n_init=number_runs,
             max_iter=max_iterations,
             tol=tolerance,
-            algorithm=used_algorithm,
-            verbose=2)
+            algorithm=used_algorithm)
     elif initialisation == "centroids":
         # Instantiate sklearn's k-means using num_clusters clusters
         kmeans = KMeans(
@@ -52,8 +51,7 @@ def run_kmeans_one_k(redis_client,
                 n_init=number_runs,
                 max_iter=max_iterations,
                 tol=tolerance,
-                algorithm=used_algorithm,
-                verbose=2)
+                algorithm=used_algorithm)
     if kmeans is None:
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] = str(initialisation)
@@ -102,7 +100,8 @@ def run_kmeans_elbow(redis_client,
     inertia_values = []
 
     for k_value in k_values:
-        inertia = run_kmeans_one_k(dataframe,
+        inertia = run_kmeans_one_k(redis_client,
+                                    dataframe,
                                     task_id,
                                     tasks,
                                     k_value,
@@ -116,5 +115,5 @@ def run_kmeans_elbow(redis_client,
 
     tasks[task_id]["status"] = "completed"
     tasks[task_id]["inertia_values"] = inertia_values
-    redis_client.hset(task_id,'inertia_values',inertia_values)
+    redis_client.hset(task_id,'inertia_values',str(inertia_values))
     redis_client.hset(task_id,'status',"completed")
