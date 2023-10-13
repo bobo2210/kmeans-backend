@@ -1,9 +1,11 @@
 """Module providing Function to run Webserver/API """
+import os
 import json
 import uuid
 import threading
 from urllib.parse import unquote
 import pandas as pd
+import redis
 from fastapi import FastAPI, UploadFile
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,8 +13,12 @@ import uvicorn
 from app.kmeans_methods import run_kmeans_one_k, run_kmeans_elbow
 from app.utils import read_file
 
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 
 app = FastAPI()
+
+redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 # Allow all origins by setting allow_origins to  "*"
 app.add_middleware(
@@ -114,9 +120,19 @@ async def kmeans_start(file: UploadFile,
         "inertia_values": [],
         "message": ""}
 
+    json_upload = {
+        "status": "processing",
+        "method": "one_k",
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
+    redis_client.json().set(task_id,'$',json_upload)
+    redis_client.expire(task_id,600)
+
     # Create a separate thread to run run_kmeans_one_k
     kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=(
-        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids))
+        redis_client,dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids))
     kmeans_thread.start()
 
     return {"TaskID": task_id}
@@ -212,6 +228,16 @@ async def elbow_start(file: UploadFile,
         "inertia_values": [],
         "message": ""}
 
+    json_upload = {
+        "status": "processing",
+        "method": "elbow",
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
+    redis_client.json().set(task_id,'$',json_upload)
+    redis_client.expire(task_id,600)
+
     # Create a separate thread to run run_kmeans_one_k
     kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
         dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids))
@@ -231,12 +257,12 @@ async def get_task_status(task_id: str):
     Returns:
         dict: A dictionary with the status of the task.
     """
-    if task_id not in tasks:
+    task_status=redis_client.json().get(task_id,'$.status')
+    if task_status is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    task_status = tasks[task_id]["status"]
     if task_status == "Bad Request":
         raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
-    return {"status": task_status}
+    return {"status": task_status[0]}
 
 @app.get("/kmeans/result/{task_id}")
 async def get_task_result(task_id: str):
@@ -249,22 +275,24 @@ async def get_task_result(task_id: str):
     Returns:
         array: An array with the results of the task.
     """
-    if task_id not in tasks:
+
+    task_status = redis_client.json().get(task_id,'$.status')
+    if task_status is None:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    task_status = tasks[task_id]["status"]
-    task_result = tasks[task_id]["json_result"]
-    task_inertias = tasks[task_id]["inertia_values"]
-
-    if task_status != "completed":
+    if task_status[0] != "completed":
         if task_status == "Bad Request":
             raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
         raise HTTPException(status_code=400, detail="Task result not available yet")
 
-    if tasks[task_id]["method"] == "one_k":
-        return task_result
-    if tasks[task_id]["method"] == "elbow":
-        return {"elbow": task_inertias}
+    task_method = redis_client.json().get(task_id,'$.method')
+
+    if task_method[0] == "one_k":
+        task_result = redis_client.json().get(task_id,'$.json_result.data_Points')
+        return {"Cluster": task_result[0]}
+    if task_method[0] == "elbow":
+        task_inertias = redis_client.json().get(task_id,'$.inertia_values')
+        return {"elbow": task_inertias[0]}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
