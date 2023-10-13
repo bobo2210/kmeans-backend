@@ -23,6 +23,7 @@ def data_check(dataframe,tasks, task_id):
         tasks[task_id]["status"] = "Data Preparation"
         # Löscht alle Zeilen mit null-Werten
         cleaned_df = dataframe.dropna()
+        tasks[task_id]["message"] += "Removed rows with null values. "
 
         # Löscht alle Zeilen mit nicht alphanumerischen Werten
         for column in cleaned_df.columns:
