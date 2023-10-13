@@ -1,6 +1,6 @@
 name: Linting, Testing
 
-on: [pull_request]
+on: [push, pull_request]
 
 jobs:
   linting_testing:
