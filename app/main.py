@@ -246,7 +246,7 @@ async def get_task_result(task_id: str):
             raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
         raise HTTPException(status_code=400, detail="Task result not available yet")
 
-    if tasks[task_id]["method"] == "one_k":  
+    if tasks[task_id]["method"] == "one_k":
         return task_result
     if tasks[task_id]["method"] == "elbow":
         return task_inertias
