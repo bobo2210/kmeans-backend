@@ -44,19 +44,19 @@ def data_check(dataframe,tasks, task_id, normalization):
             # Filter columns by data type (categorical)
             categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
 
-        # One-Hot-Encoding for categorical columns
-        encoder = OneHotEncoder(sparse_output=False, drop='first')
-        encoded_columns = encoder.fit_transform(cleaned_df[categorical_columns])
-        encoded_feature_names = encoder.get_feature_names_out(input_features=categorical_columns)
-        encoded_df = pd.DataFrame(encoded_columns, columns=encoded_feature_names)
+            # One-Hot-Encoding for categorical columns
+            encoder = OneHotEncoder(sparse_output=False, drop='first')
+            encoded_columns = encoder.fit_transform(cleaned_df[categorical_columns])
+            encoded_feature_names = encoder.get_feature_names_out(input_features=categorical_columns)
+            encoded_df = pd.DataFrame(encoded_columns, columns=encoded_feature_names)
 
-        # Drop original categorical columns
-        cleaned_df = cleaned_df.drop(columns=categorical_columns)
+            # Drop original categorical columns
+            cleaned_df = cleaned_df.drop(columns=categorical_columns)
 
-        # Concatenate encoded DataFrame with the original DataFrame
-        cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
+            # Concatenate encoded DataFrame with the original DataFrame
+            cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
 
-        tasks[task_id]["message"] += "One-Hot encoded). "
+            tasks[task_id]["message"] += "One-Hot encoded). "
 
         if normalization == 'z':
             # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
