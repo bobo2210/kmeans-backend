@@ -28,7 +28,8 @@ def data_check(dataframe,tasks, task_id, normalization):
 
         # Löscht alle Zeilen mit nicht alphanumerischen Werten
         for column in cleaned_df.columns:
-            cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
+            #cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
+            cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: isinstance(x, (int, float)) or str(x).isalnum())]
             tasks[task_id]["message"] += "Removed rows with non-alphanumeric values. "
 
         #löscht alle Zeilen, die Buchstaben UND Zanhlen enthalten
