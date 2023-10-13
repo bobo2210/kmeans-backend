@@ -110,9 +110,59 @@ def test_invalid_initialization_method():
     assert tasks[task_id]["status"] == "Bad Request"
 
 # pylint: disable=unused-variable
-def test_invalid_data():
+def test_k_too_high():
     """
-    Test invalid data
+    Test k too high
+    """
+    data = pd.DataFrame({
+        'x': [1, 2, 3, 4, 5],
+        'y': [5, 4, 3, 2, 1]
+    })
+
+    tasks = {}
+    tasks[1] = {
+        "status": "processing",
+        "method": "one_k",
+        "Datenpunkte": data,
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
+    task_id = 1
+    result = run_kmeans_one_k(data, task_id, tasks, k_value=8,
+                              number_runs=5, max_iterations=100, tolerance=1e-4,
+                              initialisation="random", used_algorithm="full")
+    assert tasks[task_id]["status"] == "Bad Request"
+
+# pylint: disable=unused-variable
+def test_invalid_number_runs():
+    """
+    Test invalid number_runs
+    """
+    data = pd.DataFrame({
+        'x': [1, 2, 3, 4, 5],
+        'y': [5, 4, 3, 2, 1]
+    })
+
+    tasks = {}
+    tasks[1] = {
+        "status": "processing",
+        "method": "one_k",
+        "Datenpunkte": data,
+        "json_result": {},
+        "inertia_values": [],
+        "message": ""}
+
+    task_id = 1
+    result = run_kmeans_one_k(data, task_id, tasks, k_value=8,
+                              number_runs="a", max_iterations=100, tolerance=1e-4,
+                              initialisation="random", used_algorithm="full")
+    assert tasks[task_id]["status"] == "Bad Request"
+
+# pylint: disable=unused-variable
+def test_invalid_used_algorithm():
+    """
+    Test invalid used_algorithm
     """
     data = pd.DataFrame({
         'x': [1, 2, 3, 4, 5],

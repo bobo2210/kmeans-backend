@@ -55,10 +55,10 @@ def read_file(file, filename):
 
         # Versuche, das Trennzeichen automatisch zu erkennen
         try:
-            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=None)
+            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=None, engine='python')
         except pd.errors.ParserError:
             # Wenn das automatische Erkennen fehlschlägt, verwende ';' als Fallback-Trennzeichen
-            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=";")
+            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=";", engine='python')
         return dataframe
     if filename.endswith(".xlsx"):
         # Read the uploaded Excel file
@@ -69,17 +69,16 @@ def read_file(file, filename):
         return dataframe
     return {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
 
-# pylint: disable=too-many-arguments
-def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm):
+def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm, normalization):
     """
         checking the params for kmeans
     """
 
     error_message = ""
-    if not isinstance(number_runs, int) and number_runs != 'auto':
-        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
-    if k_min > len(dataframe) or k_max > len(dataframe):
-        error_message += ("The k-value has to be an integer"
+    if (not isinstance(number_runs, int) or number_runs < 1) and number_runs != 'auto':
+        error_message += "The number of kmeans-runs has to be an integer > 0 or ""auto"""
+    if k_min > len(dataframe) or k_max > len(dataframe) or k_min < 0 or k_max < 0:
+        error_message += ("The k-value has to be an integer > 0"
                           " and smaller than the number of datapoints. ")
     if k_min > k_max:
         error_message += ("k_min has to be smaller than k_max")
@@ -91,6 +90,9 @@ def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algor
     if algorithm not in ("elkan","auto", "lloyd", "full"):
         error_message += ("The 'algorithm' parameter of KMeans must be a str among"
                          " ('elkan', 'auto' (deprecated), 'lloyd', 'full' (deprecated)).")
+    if normalization is not None and normalization not in("min-max", "z"):
+        error_message += ("The 'normalization' parameter must be None or a string among"
+                         " ('min-max' or 'z').")
 
     return error_message
 

@@ -26,7 +26,6 @@ app.add_middleware(
 # Dictionary to store tasks, including status and results
 tasks = {}
 
-# pylint: disable=too-many-arguments,too-many-locals, line-too-long
 @app.post("/kmeans/")
 async def kmeans_start(file: UploadFile,
                        k: int,
@@ -35,7 +34,8 @@ async def kmeans_start(file: UploadFile,
                        tolerance: float = 0.0001,
                        init: str = "k-means++",
                        algorithm: str = "lloyd",
-                       centroids: str = None):
+                       centroids: str = None,
+                       normalization: str= None):
     """
     Uploads a json or csv file, performs k-means, and returns the id of the task
 
@@ -65,6 +65,8 @@ async def kmeans_start(file: UploadFile,
 
         Centroids JSON string containing the array of arrays of the initial centroid positions
 
+        normalization string containing the 
+
     Returns:
         dict: The Id of the task
               If the uploaded file is not a json or csv, an error message is returned.
@@ -88,7 +90,7 @@ async def kmeans_start(file: UploadFile,
         except json.JSONDecodeError as exception:
             raise HTTPException(status_code=400, detail= str(exception)) from exception
 
-    error_message = check_parameter(centroids, number_runs, dataframe, k, k, init, algorithm)
+    error_message = check_parameter(centroids, number_runs, dataframe, k, k, init, algorithm, normalization)
 
     if error_message != "":
         raise HTTPException(status_code=400, detail= error_message)
@@ -102,17 +104,16 @@ async def kmeans_start(file: UploadFile,
         "method": "one_k",
         "Datenpunkte": dataframe,
         "json_result": {},
-        "inertia_values": [],
+        "json_inertia": {},
         "message": ""}
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=(
-        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids))
+        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids, normalization))
     kmeans_thread.start()
 
     return {"TaskID": task_id}
 
-# pylint: disable=too-many-arguments,too-many-locals, line-too-long
 @app.post("/elbow/")
 async def elbow_start(file: UploadFile,
                        k_min: int,
@@ -122,7 +123,8 @@ async def elbow_start(file: UploadFile,
                        tolerance: float = 0.0001,
                        init: str = "k-means++",
                        algorithm: str = "lloyd",
-                       centroids: str = None):
+                       centroids: str = None,
+                       normalization: str= None):
     """
     Uploads a json or csv file, performs k-means for each k, and returns the id of the task
 
@@ -176,7 +178,7 @@ async def elbow_start(file: UploadFile,
         except json.JSONDecodeError as exception:
             raise HTTPException(status_code=400, detail= str(exception)) from Exception
 
-    error_message = check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm)
+    error_message = check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm, normalization)
 
     if error_message != "":
         raise HTTPException(status_code=400, detail= error_message)
@@ -190,14 +192,14 @@ async def elbow_start(file: UploadFile,
         "method": "elbow",
         "Datenpunkte": dataframe,
         "json_result": {},
-        "inertia_values": [],
+        "json_inertia": {},
         "message": ""}
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
-        dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids))
+        dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids, normalization))
     kmeans_elbow_thread.start()
-
+    # Convert the DataFrame to a JSON-serializable format
     return {"TaskID": task_id}
 
 
@@ -236,7 +238,7 @@ async def get_task_result(task_id: str):
 
     task_status = tasks[task_id]["status"]
     task_result = tasks[task_id]["json_result"]
-    task_inertias = tasks[task_id]["inertia_values"]
+    task_inertias = tasks[task_id]["json_inertia"]
 
     if task_status != "completed":
         if task_status == "Bad Request":
@@ -246,7 +248,7 @@ async def get_task_result(task_id: str):
     if tasks[task_id]["method"] == "one_k":
         return task_result
     if tasks[task_id]["method"] == "elbow":
-        return {"elbow": task_inertias}
+        return task_inertias
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
