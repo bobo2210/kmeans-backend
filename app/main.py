@@ -122,12 +122,9 @@ async def kmeans_start(file: UploadFile,
 
     json_upload = {
         "status": "processing",
-        "method": "one_k",
-        "json_result": {},
-        "inertia_values": [],
-        "message": ""}
+        "method": "one_k"}
 
-    redis_client.json().set(task_id,'$',json_upload)
+    redis_client.hmset(task_id, json_upload)
     redis_client.expire(task_id,600)
 
     # Create a separate thread to run run_kmeans_one_k
@@ -235,8 +232,7 @@ async def elbow_start(file: UploadFile,
         "inertia_values": [],
         "message": ""}
 
-    redis_client.json().set(task_id,'$',json_upload)
-    redis_client.expire(task_id,600)
+    redis_client.hmset(task_id,json_upload)
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
@@ -257,7 +253,7 @@ async def get_task_status(task_id: str):
     Returns:
         dict: A dictionary with the status of the task.
     """
-    task_status=redis_client.json().get(task_id,'$.status')
+    task_status=redis_client.hget(task_id,'status')
     if task_status is None:
         raise HTTPException(status_code=404, detail="Task not found")
     if task_status == "Bad Request":
@@ -276,23 +272,23 @@ async def get_task_result(task_id: str):
         array: An array with the results of the task.
     """
 
-    task_status = redis_client.json().get(task_id,'$.status')
+    task_status = redis_client.hget(task_id,'status')
     if task_status is None:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    if task_status[0] != "completed":
+    if task_status != "completed":
         if task_status == "Bad Request":
             raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
         raise HTTPException(status_code=400, detail="Task result not available yet")
 
-    task_method = redis_client.json().get(task_id,'$.method')
+    task_method = redis_client.hget(task_id,'method')
 
-    if task_method[0] == "one_k":
-        task_result = redis_client.json().get(task_id,'$.json_result.data_Points')
-        return {"Cluster": task_result[0]}
+    if task_method == "one_k":
+        task_result = redis_client.hget(task_id,'json_result')
+        return  json.loads(task_result)
     if task_method[0] == "elbow":
-        task_inertias = redis_client.json().get(task_id,'$.inertia_values')
-        return {"elbow": task_inertias[0]}
+        task_inertias = redis_client.hget(task_id,'inertia_values')
+        return {"elbow": task_inertias}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)

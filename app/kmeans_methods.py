@@ -57,8 +57,8 @@ def run_kmeans_one_k(redis_client,
     if kmeans is None:
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] = str(initialisation)
-        redis_client.json().set(task_id,'$.message',str(initialisation))
-        redis_client.json().set(task_id,'$.status',"Bad Request")
+        redis_client.hset(task_id,'message',str(initialisation))
+        redis_client.hset(task_id,'status',"Bad Request")
 
 
     try:
@@ -70,15 +70,16 @@ def run_kmeans_one_k(redis_client,
             result_to_json = dataframe_to_json_str(dataframe, kmeans.labels_, kmeans.cluster_centers_)
             json_string = json.loads(result_to_json)
             tasks[task_id]["json_result"] = json_string
-            redis_client.json().set(task_id,'$.json_result',json_string)
-            redis_client.json().set(task_id,'$.status',"completed")
+            print(result_to_json)
+            redis_client.hset(task_id,"json_result",str(result_to_json))
+            redis_client.hset(task_id,"status","completed")
         elif  tasks[task_id]["method"] == "elbow":
             return kmeans.inertia_
     except ValueError as exception:
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] += str(exception)
-        redis_client.json().set(task_id,'$.message',str(exception))
-        redis_client.json().set(task_id,'$.status',"Bad Request")
+        redis_client.hset(task_id,'message',str(exception))
+        redis_client.hset(task_id,'status',"Bad Request")
 
 # pylint: disable=too-many-locals
 def run_kmeans_elbow(redis_client,
@@ -116,5 +117,5 @@ def run_kmeans_elbow(redis_client,
 
     tasks[task_id]["status"] = "completed"
     tasks[task_id]["inertia_values"] = inertia_values
-    redis_client.json().set(task_id,'$.inertia_values',inertia_values)
-    redis_client.json().set(task_id,'$.status',"completed")
+    redis_client.hset(task_id,'inertia_values',inertia_values)
+    redis_client.hset(task_id,'status',"completed")
