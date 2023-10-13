@@ -4,9 +4,10 @@ Module checking incoming dataframes
 """
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 
-# pylint: disable=broad-exception-caught,line-too-long
+# pylint: disable=broad-exception-caught,line-too-long,too-many-locals
 
 def data_check(dataframe,tasks, task_id):
     """
@@ -19,7 +20,7 @@ def data_check(dataframe,tasks, task_id):
     Returns:
         cleaned_df (pd.DataFrame): The cleaned CSV data.
     """
-    OHR=True
+    ohr=True
     scaling = 'min-max'
 
     try:
@@ -41,7 +42,7 @@ def data_check(dataframe,tasks, task_id):
         if columns_to_drop:
             tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
 
-        if OHR:
+        if ohr:
             # Filtern der kategorischen Spalten und Durchführung von OHE
             # Filter columns by data type (categorical)
             categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
