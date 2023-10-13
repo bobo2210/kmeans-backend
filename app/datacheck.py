@@ -4,6 +4,7 @@ Module checking incoming dataframes
 """
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 
 def data_check(dataframe,tasks, task_id):
@@ -17,10 +18,14 @@ def data_check(dataframe,tasks, task_id):
     Returns:
         cleaned_df (pd.DataFrame): The cleaned CSV data.
     """
+    ohe=True
+    scaling = 'min-max'
+
     try:
         tasks[task_id]["status"] = "Data Preparation"
         # Löscht alle Zeilen mit null-Werten
         cleaned_df = dataframe.dropna()
+        tasks[task_id]["message"] += "Removed rows with null values. "
 
         # Löscht alle Zeilen mit nicht alphanumerischen Werten
         for column in cleaned_df.columns:
@@ -35,9 +40,10 @@ def data_check(dataframe,tasks, task_id):
         if columns_to_drop:
             tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
 
-        # Filtern der kategorischen Spalten und Durchführung von OHE
-        # Filter columns by data type (categorical)
-        categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
+        if ohe:
+            # Filtern der kategorischen Spalten und Durchführung von OHE
+            # Filter columns by data type (categorical)
+            categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
 
         # One-Hot-Encoding for categorical columns
         encoder = OneHotEncoder(sparse_output=False, drop='first')
@@ -45,25 +51,27 @@ def data_check(dataframe,tasks, task_id):
         encoded_feature_names = encoder.get_feature_names_out(input_features=categorical_columns)
         encoded_df = pd.DataFrame(encoded_columns, columns=encoded_feature_names)
 
-        # Drop original categorical columns
-        cleaned_df = cleaned_df.drop(columns=categorical_columns)
+            # Drop original categorical columns
+            cleaned_df = cleaned_df.drop(columns=categorical_columns)
 
-        # Concatenate encoded DataFrame with the original DataFrame
-        cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
+            # Concatenate encoded DataFrame with the original DataFrame
+            cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
 
-        tasks[task_id]["message"] += "One-Hot encoded). "
+            tasks[task_id]["message"] += "One-Hot encoded). "
 
-        # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
-        #numerical_columns = cleaned_df.select_dtypes(include=['int', 'float']).columns
-        #scaler = StandardScaler()
-        #cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
+        if scaling == 'z':
+            # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
+            numerical_columns = cleaned_df.select_dtypes(include=['int', 'float']).columns
+            scaler = StandardScaler()
+            cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
 
-        # Skalierung der numerischen Spalten (Min-Max-Skalierung)
-        numerical_columns = cleaned_df.select_dtypes(include=['int', 'float']).columns
-        scaler = MinMaxScaler()  # Min-Max-Skalierung anstelle von Standardisierung
-        cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
-        tasks[task_id]["message"] += "Min-Max scaled). "
-        tasks[task_id]["status"] = "Data prepared. Processing..."
+        if scaling == 'min-max':
+            # Skalierung der numerischen Spalten (Min-Max-Skalierung)
+            numerical_columns = cleaned_df.select_dtypes(include=['int', 'float']).columns
+            scaler = MinMaxScaler()  # Min-Max-Skalierung anstelle von Standardisierung
+            cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
+            tasks[task_id]["message"] += "Min-Max scaled). "
+            tasks[task_id]["status"] = "Data prepared. Processing..."
         return cleaned_df
     except Exception as exception:
         # Wenn ein Fehler auftritt, wird die Nachricht an `tasks[task_id]` angehangen.
