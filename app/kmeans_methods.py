@@ -70,7 +70,6 @@ def run_kmeans_one_k(redis_client,
             result_to_json = dataframe_to_json_str(dataframe, kmeans.labels_, kmeans.cluster_centers_)
             json_string = json.loads(result_to_json)
             tasks[task_id]["json_result"] = json_string
-            print(result_to_json)
             redis_client.hset(task_id,"json_result",str(result_to_json))
             redis_client.hset(task_id,"status","completed")
         elif  tasks[task_id]["method"] == "elbow":
