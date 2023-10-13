@@ -25,7 +25,7 @@ WRONGFILEPATH = "tests/kmeans_test.error"
 if not os.path.exists(TESTFILEPATH):
     raise FileNotFoundError(f"File not found: {TESTFILEPATH}")
 
-
+# pylint: disable=line-too-long
 def test_upload_json_and_check_task_status():
     """test upload valid file and check response"""
     # Test uploading a JSON file
@@ -62,7 +62,7 @@ def test_upload_invalid_file():
         response = client.post("/kmeans/",params=test_params,files={"file": file})
 
     # Check if the response status code is 400 Bad Request
-    assert response.json() == {"error": "Die hochgeladene Datei ist keine json oder csv Datei."}
+    assert response.status_code == 400
 
 def test_get_task_result():
     """Test get result"""
