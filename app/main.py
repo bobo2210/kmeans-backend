@@ -199,8 +199,9 @@ async def elbow_start(file: UploadFile,
     kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
         dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids, normalization))
     kmeans_elbow_thread.start()
-
-    return {"TaskID": task_id}
+    # Convert the DataFrame to a JSON-serializable format
+    dataframe_json = dataframe.to_dict(orient="records")
+    return {"TaskID": dataframe}
 
 
 
@@ -245,7 +246,7 @@ async def get_task_result(task_id: str):
             raise HTTPException(status_code=400, detail= tasks[task_id]["message"])
         raise HTTPException(status_code=400, detail="Task result not available yet")
 
-    if tasks[task_id]["method"] == "one_k":
+    if tasks[task_id]["method"] == "one_k":  
         return task_result
     if tasks[task_id]["method"] == "elbow":
         return task_inertias
