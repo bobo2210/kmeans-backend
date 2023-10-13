@@ -11,7 +11,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.kmeans_methods import run_kmeans_one_k, run_kmeans_elbow
-from app.utils import read_file
+from app.utils import read_file, check_parameter
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
@@ -32,7 +32,6 @@ app.add_middleware(
 # Dictionary to store tasks, including status and results
 tasks = {}
 
-# pylint: disable=too-many-arguments,too-many-locals, line-too-long
 @app.post("/kmeans/")
 async def kmeans_start(file: UploadFile,
                        k: int,
@@ -41,7 +40,8 @@ async def kmeans_start(file: UploadFile,
                        tolerance: float = 0.0001,
                        init: str = "k-means++",
                        algorithm: str = "lloyd",
-                       centroids: str = None):
+                       centroids: str = None,
+                       normalization: str= None):
     """
     Uploads a json or csv file, performs k-means, and returns the id of the task
 
@@ -71,6 +71,8 @@ async def kmeans_start(file: UploadFile,
 
         Centroids JSON string containing the array of arrays of the initial centroid positions
 
+        normalization string containing the 
+
     Returns:
         dict: The Id of the task
               If the uploaded file is not a json or csv, an error message is returned.
@@ -94,17 +96,8 @@ async def kmeans_start(file: UploadFile,
         except json.JSONDecodeError as exception:
             raise HTTPException(status_code=400, detail= str(exception)) from exception
 
-    error_message = ""
-    if not isinstance(number_runs, int) and number_runs != 'auto':
-        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
-    if k > len(dataframe) or not isinstance(k, int):
-        error_message += ("The k-value has to be an integer"
-                          " and smaller than the number of datapoints. ")
-    if (init not in ("k-means++","random", "centroids") or
-        (init == "centroids" and centroids is None)):
-        error_message += ("The parameter init has to be k-means++, random or centroids"
-                          " in combination with a specification"
-                          " of the initial centroid positions. ")
+    error_message = check_parameter(centroids, number_runs, dataframe, k, k, init, algorithm, normalization)
+
     if error_message != "":
         raise HTTPException(status_code=400, detail= error_message)
 
@@ -117,7 +110,7 @@ async def kmeans_start(file: UploadFile,
         "method": "one_k",
         "Datenpunkte": dataframe,
         "json_result": {},
-        "inertia_values": [],
+        "json_inertia": {},
         "message": ""}
 
     data_upload = {
@@ -129,12 +122,11 @@ async def kmeans_start(file: UploadFile,
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=(
-        redis_client,dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids))
+        redis_client,dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids, normalization))
     kmeans_thread.start()
 
     return {"TaskID": task_id}
 
-# pylint: disable=too-many-arguments,too-many-locals, line-too-long
 @app.post("/elbow/")
 async def elbow_start(file: UploadFile,
                        k_min: int,
@@ -144,7 +136,8 @@ async def elbow_start(file: UploadFile,
                        tolerance: float = 0.0001,
                        init: str = "k-means++",
                        algorithm: str = "lloyd",
-                       centroids: str = None):
+                       centroids: str = None,
+                       normalization: str= None):
     """
     Uploads a json or csv file, performs k-means for each k, and returns the id of the task
 
@@ -174,6 +167,7 @@ async def elbow_start(file: UploadFile,
 
         algorithm (str) ("lloyd", "elkan", "auto", "full"): "lloyd"
 
+
         Centroids JSON string containing the array of arrays of the initial centroid positions
 
     Returns:
@@ -197,19 +191,8 @@ async def elbow_start(file: UploadFile,
         except json.JSONDecodeError as exception:
             raise HTTPException(status_code=400, detail= str(exception)) from Exception
 
-    error_message = ""
-    if not isinstance(number_runs, int) and number_runs != 'auto':
-        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
-    if k_min > len(dataframe) or k_max > len(dataframe):
-        error_message += ("The k-value has to be an integer"
-                          " and smaller than the number of datapoints. ")
-    if k_min > k_max:
-        error_message += ("k_min has to be smaller than k_max")
-    if (init not in ("k-means++","random", "centroids") or
-        (init == "centroids" and centroids is None)):
-        error_message += ("The parameter init has to be k-means++, random or centroids"
-                          " in combination with a specification"
-                          " of the initial centroid positions. ")
+    error_message = check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm, normalization)
+
     if error_message != "":
         raise HTTPException(status_code=400, detail= error_message)
 
@@ -222,7 +205,7 @@ async def elbow_start(file: UploadFile,
         "method": "elbow",
         "Datenpunkte": dataframe,
         "json_result": {},
-        "inertia_values": [],
+        "json_inertia": {},
         "message": ""}
 
     data_upload = {
@@ -234,10 +217,11 @@ async def elbow_start(file: UploadFile,
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
-        redis_client, dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids))
+        redis_client, dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids, normalization))
     kmeans_elbow_thread.start()
-
+    # Convert the DataFrame to a JSON-serializable format
     return {"TaskID": task_id}
+
 
 
 @app.get("/kmeans/status/{task_id}")
