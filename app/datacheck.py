@@ -6,8 +6,6 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import OneHotEncoder
 
-# pylint: disable=broad-exception-caught,line-too-long
-
 def data_check(dataframe,tasks, task_id):
     """
     Checks a dataframe and clears it for clustering
@@ -42,7 +40,7 @@ def data_check(dataframe,tasks, task_id):
         categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
 
         # One-Hot-Encoding for categorical columns
-        encoder = OneHotEncoder(sparse=False, drop='first')
+        encoder = OneHotEncoder(sparse_output=False, drop='first')
         encoded_columns = encoder.fit_transform(cleaned_df[categorical_columns])
         encoded_feature_names = encoder.get_feature_names_out(input_features=categorical_columns)
         encoded_df = pd.DataFrame(encoded_columns, columns=encoded_feature_names)
@@ -65,12 +63,12 @@ def data_check(dataframe,tasks, task_id):
         scaler = MinMaxScaler()  # Min-Max-Skalierung anstelle von Standardisierung
         cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
         tasks[task_id]["message"] += "Min-Max scaled). "
-
+        tasks[task_id]["status"] = "Data prepared. Processing..."
         return cleaned_df
     except Exception as exception:
         # Wenn ein Fehler auftritt, wird die Nachricht an `tasks[task_id]` angehangen.
         tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] += str("Datapreparation: " + exception)
+        tasks[task_id]["message"] += str("Datapreparation: " + str(exception))
         return None
 
 def contains_numbers_and_letters(column):

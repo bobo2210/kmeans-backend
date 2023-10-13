@@ -1,5 +1,3 @@
-# pylint: disable=too-many-locals
-
 """
 Module for k-means clustering methods.
 """
@@ -9,7 +7,7 @@ from sklearn.cluster import KMeans
 from app.utils import dataframe_to_json_str, elbow_to_json
 from app.datacheck import data_check
 
-# pylint: disable=too-many-arguments,inconsistent-return-statements, line-too-long
+# pylint: disable=inconsistent-return-statements
 def run_kmeans_one_k(dataframe,
                     task_id,
                     tasks,
@@ -33,9 +31,13 @@ def run_kmeans_one_k(dataframe,
               If the uploaded file is not a CSV, an error message is returned.
     """
     #Dateicheck einfuegen
-    #tasks[task_id]["status"] = "Preparing Data..."
-    dataframe = data_check(dataframe, tasks, task_id)
-    #tasks[task_id]["status"] = "Data prepared. Processing..."
+    if tasks[task_id]["status"] != "Data prepared. Processing...":
+        tasks[task_id]["status"] = "Preparing Data..."
+        dataframe = data_check(dataframe, tasks, task_id)
+        
+
+    if dataframe is None:
+        return
 
     kmeans = None
     if initialisation in ("k-means++","random"):
@@ -60,7 +62,7 @@ def run_kmeans_one_k(dataframe,
                 verbose=2)
     if kmeans is None:
         tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] = str(initialisation)
+        tasks[task_id]["message"] += str(initialisation)
         return
     try:
         # execute k-means algorithm

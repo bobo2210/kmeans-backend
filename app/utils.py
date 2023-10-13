@@ -55,10 +55,10 @@ def read_file(file, filename):
 
         # Versuche, das Trennzeichen automatisch zu erkennen
         try:
-            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=None)
+            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=None, engine='python')
         except pd.errors.ParserError:
             # Wenn das automatische Erkennen fehlschlägt, verwende ';' als Fallback-Trennzeichen
-            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=";")
+            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=";", engine='python')
         return dataframe
     if filename.endswith(".xlsx"):
         # Read the uploaded Excel file
@@ -69,7 +69,6 @@ def read_file(file, filename):
         return dataframe
     return {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
 
-# pylint: disable=too-many-arguments
 def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm):
     """
         checking the params for kmeans

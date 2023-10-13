@@ -26,7 +26,6 @@ app.add_middleware(
 # Dictionary to store tasks, including status and results
 tasks = {}
 
-# pylint: disable=too-many-arguments,too-many-locals, line-too-long
 @app.post("/kmeans/")
 async def kmeans_start(file: UploadFile,
                        k: int,
@@ -64,6 +63,8 @@ async def kmeans_start(file: UploadFile,
         algorithm (str) ("lloyd", "elkan", "auto", "full")
 
         Centroids JSON string containing the array of arrays of the initial centroid positions
+
+        normalization string containing the 
 
     Returns:
         dict: The Id of the task
@@ -112,7 +113,6 @@ async def kmeans_start(file: UploadFile,
 
     return {"TaskID": task_id}
 
-# pylint: disable=too-many-arguments,too-many-locals, line-too-long
 @app.post("/elbow/")
 async def elbow_start(file: UploadFile,
                        k_min: int,
@@ -122,7 +122,8 @@ async def elbow_start(file: UploadFile,
                        tolerance: float = 0.0001,
                        init: str = "k-means++",
                        algorithm: str = "lloyd",
-                       centroids: str = None):
+                       centroids: str = None,
+                       normalization: str= None):
     """
     Uploads a json or csv file, performs k-means for each k, and returns the id of the task
 
