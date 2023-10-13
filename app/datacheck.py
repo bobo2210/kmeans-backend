@@ -56,7 +56,7 @@ def data_check(dataframe,tasks, task_id, normalization):
             # Concatenate encoded DataFrame with the original DataFrame
             cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
 
-            tasks[task_id]["message"] += "One-Hot encoded). "
+            tasks[task_id]["message"] += "One-Hot encoded. "
 
         if normalization == 'z':
             # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
