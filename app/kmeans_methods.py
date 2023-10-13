@@ -34,8 +34,7 @@ def run_kmeans_one_k(dataframe,
     #Dateicheck einfuegen
     if tasks[task_id]["status"] != "Data prepared. Processing...":
         tasks[task_id]["status"] = "Preparing Data..."
-        dataframe = data_check(dataframe, tasks, task_id, normalization)
-        
+        dataframe = data_check(dataframe, tasks, task_id, normalization) 
 
     if dataframe is None:
         return
