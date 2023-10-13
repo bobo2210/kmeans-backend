@@ -1,0 +1,5 @@
+[FORMAT]
+max-line-length = 200
+
+[MESSAGES CONTROL]
+disable = too-many-locals, too-many-arguments, broad-exception-caught
