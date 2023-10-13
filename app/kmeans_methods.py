@@ -80,7 +80,7 @@ def run_kmeans_one_k(redis_client,
         redis_client.json().set(task_id,'$.message',str(exception))
         redis_client.json().set(task_id,'$.status',"Bad Request")
 
-
+# pylint: disable=too-many-locals
 def run_kmeans_elbow(redis_client,
                         dataframe,
                         task_id,
