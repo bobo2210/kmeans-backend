@@ -20,7 +20,7 @@ def data_check(dataframe,tasks, task_id):
     Returns:
         cleaned_df (pd.DataFrame): The cleaned CSV data.
     """
-    ohr=True
+    ohe=True
     scaling = 'min-max'
 
     try:
@@ -42,7 +42,7 @@ def data_check(dataframe,tasks, task_id):
         if columns_to_drop:
             tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
 
-        if ohr:
+        if ohe:
             # Filtern der kategorischen Spalten und Durchführung von OHE
             # Filter columns by data type (categorical)
             categorical_columns = cleaned_df.select_dtypes(include=['object']).columns.tolist()
