@@ -57,7 +57,7 @@ def run_kmeans_one_k(redis_client,
         tasks[task_id]["message"] = str(initialisation)
         redis_client.hset(task_id,'message',str(initialisation))
         redis_client.hset(task_id,'status',"Bad Request")
-
+        return None
 
     try:
         # execute k-means algorithm
