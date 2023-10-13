@@ -71,7 +71,7 @@ def data_check(dataframe,tasks, task_id):
     except Exception as exception:
         # Wenn ein Fehler auftritt, wird die Nachricht an `tasks[task_id]` angehangen.
         tasks[task_id]["status"] = "Bad Request"
-        tasks[task_id]["message"] += str("Datapreparation: " + exception)
+        tasks[task_id]["message"] += str("Datapreparation: " + str(exception))
         return None
 
 def contains_numbers_and_letters(column):
