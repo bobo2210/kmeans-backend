@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
-# Create a TestClient instance to interact with your FastAPI app.
+# Create a TestClient instance to interact with your FastAPI app
 client = TestClient(app)
 
 # Sample JSON data for testing
