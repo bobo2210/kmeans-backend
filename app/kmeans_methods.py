@@ -33,9 +33,8 @@ def run_kmeans_one_k(redis_client,
               If the uploaded file is not a CSV, an error message is returned.
     """
     #Dateicheck einfuegen
-    if tasks[task_id]["status"] != "Data prepared. Processing...":
-        tasks[task_id]["status"] = "Preparing Data..."
-        dataframe = data_check(dataframe, tasks, task_id, normalization)
+    if tasks[task_id]["status"] != "Data prepared. Processing":
+        dataframe = data_check(redis_client, dataframe, tasks, task_id, normalization)
 
     if dataframe is None:
         return

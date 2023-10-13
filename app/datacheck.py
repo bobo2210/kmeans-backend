@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 
-def data_check(dataframe,tasks, task_id, normalization):
+def data_check(redis_client, dataframe,tasks, task_id, normalization):
     """
     Checks a dataframe and clears it for clustering
 
@@ -22,15 +22,18 @@ def data_check(dataframe,tasks, task_id, normalization):
 
     try:
         tasks[task_id]["status"] = "Data Preparation"
+        redis_client.hset(task_id,'status',"Data Preparation")
         # Löscht alle Zeilen mit null-Werten
         cleaned_df = dataframe.dropna()
         tasks[task_id]["message"] += "Removed rows with null values. "
+        redis_client.hset(task_id,'message',tasks[task_id]["message"])
 
         # Löscht alle Zeilen mit nicht alphanumerischen Werten
         for column in cleaned_df.columns:
             #cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
             cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: isinstance(x, (int, float)) or str(x).isalnum())]
             tasks[task_id]["message"] += "Removed rows with non-alphanumeric values. "
+            redis_client.hset(task_id,'message',tasks[task_id]["message"])
 
         #löscht alle Zeilen, die Buchstaben UND Zanhlen enthalten
         # Iteriert über die Spalten und erstellt eine Liste der zu löschenden Spalten
@@ -39,6 +42,7 @@ def data_check(dataframe,tasks, task_id, normalization):
         cleaned_df = cleaned_df.drop(columns=columns_to_drop)
         if columns_to_drop:
             tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
+            redis_client.hset(task_id,'message',tasks[task_id]["message"])
 
         if ohe:
             # Filtern der kategorischen Spalten und Durchführung von OHE
@@ -58,6 +62,7 @@ def data_check(dataframe,tasks, task_id, normalization):
             cleaned_df = pd.concat([cleaned_df, encoded_df], axis=1)
 
             tasks[task_id]["message"] += "One-Hot encoded. "
+            redis_client.hset(task_id,'message',tasks[task_id]["message"])
 
         if normalization == 'z':
             # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
@@ -71,12 +76,16 @@ def data_check(dataframe,tasks, task_id, normalization):
             scaler = MinMaxScaler()  # Min-Max-Skalierung anstelle von Standardisierung
             cleaned_df[numerical_columns] = scaler.fit_transform(cleaned_df[numerical_columns])
             tasks[task_id]["message"] += "Min-Max scaled). "
-            tasks[task_id]["status"] = "Data prepared. Processing..."
+            tasks[task_id]["status"] = "Data prepared. Processing"
+            redis_client.hset(task_id,'status',"Data prepared. Processing")
+            redis_client.hset(task_id,'message',tasks[task_id]["message"])
         return cleaned_df
     except Exception as exception:
         # Wenn ein Fehler auftritt, wird die Nachricht an `tasks[task_id]` angehangen.
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] += str("Datapreparation: " + str(exception))
+        redis_client.hset(task_id,'status',"Bad Request")
+        redis_client.hset(task_id,'message',tasks[task_id]["message"])
         return None
 
 def contains_numbers_and_letters(column):
