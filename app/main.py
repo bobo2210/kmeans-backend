@@ -200,8 +200,7 @@ async def elbow_start(file: UploadFile,
         dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids, normalization))
     kmeans_elbow_thread.start()
     # Convert the DataFrame to a JSON-serializable format
-    dataframe_json = dataframe.to_dict(orient="records")
-    return {"TaskID": dataframe}
+    return {"TaskID": task_id}
 
 
 
