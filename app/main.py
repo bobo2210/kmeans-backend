@@ -267,10 +267,10 @@ async def get_task_result(task_id: str):
 
     if task_method == "one_k":
         task_result = redis_client.hget(task_id,'json_result')
-        return  json.loads(task_result)
+        return json.loads(task_result)
     if task_method == "elbow":
         task_inertias = redis_client.hget(task_id,'inertia_values')
-        return {"elbow": task_inertias}
+        return json.loads(task_inertias)
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=5000)
