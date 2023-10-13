@@ -75,10 +75,10 @@ def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algor
     """
 
     error_message = ""
-    if not isinstance(number_runs, int) and number_runs != 'auto':
-        error_message += "The number of kmeans-runs has to be an integer or ""auto"""
-    if k_min > len(dataframe) or k_max > len(dataframe):
-        error_message += ("The k-value has to be an integer"
+    if (not isinstance(number_runs, int) or number_runs < 1) and number_runs != 'auto':
+        error_message += "The number of kmeans-runs has to be an integer > 0 or ""auto"""
+    if k_min > len(dataframe) or k_max > len(dataframe) or k_min < 0 or k_max < 0:
+        error_message += ("The k-value has to be an integer > 0"
                           " and smaller than the number of datapoints. ")
     if k_min > k_max:
         error_message += ("k_min has to be smaller than k_max")
