@@ -2,7 +2,7 @@ name: Deploy test
 on:
   push:
     branches:  
-      - test
+      - feature
     paths-ignore:
       - README.md
       - CHANGELOG.md # Should never be edited anyway
