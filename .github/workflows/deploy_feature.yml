@@ -8,6 +8,14 @@ on:
       - CHANGELOG.md # Should never be edited anyway
       - .gitignore
       - .github/**
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags' 
 
 env:
   PROJECT_ID: programmierprojekt-397609 # TODO: update Google Cloud project id
