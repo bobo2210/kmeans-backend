@@ -1,3 +1,4 @@
+# pylint: disable=too-many-locals
 """
 Module for k-means clustering methods.
 """
