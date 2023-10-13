@@ -12,7 +12,7 @@ jobs:
 
     services:
       redis:
-        image: redis
+        image: redis-stack-server
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -36,7 +36,6 @@ jobs:
           pip install pylint
           pip install pytest
           pip install httpx
-          pip install redis
           pip install -r requirements.txt
           
       - name: Wait for Redis to start
