@@ -17,7 +17,8 @@ def run_kmeans_one_k(dataframe,
                     tolerance,
                     initialisation,
                     used_algorithm,
-                    centroids_start=None):
+                    centroids_start=None,
+                    normalization=None):
     """
     Uploads a CSV file, performs k-means, and returns an array with the clusters 
 
@@ -33,7 +34,7 @@ def run_kmeans_one_k(dataframe,
     #Dateicheck einfuegen
     if tasks[task_id]["status"] != "Data prepared. Processing...":
         tasks[task_id]["status"] = "Preparing Data..."
-        dataframe = data_check(dataframe, tasks, task_id)
+        dataframe = data_check(dataframe, tasks, task_id, normalization)
         
 
     if dataframe is None:
@@ -90,7 +91,8 @@ def run_kmeans_elbow(dataframe,
                         tolerance,
                         initialisation,
                         used_algorithm,
-                        centroids_start=None):
+                        centroids_start=None,
+                        normalization=None):
     """
     Performs kmeans for elbow method
     """
@@ -109,7 +111,8 @@ def run_kmeans_elbow(dataframe,
                                     tolerance,
                                     initialisation,
                                     used_algorithm,
-                                    centroids_start)
+                                    centroids_start,
+                                    normalization)
         inertia_values.append(inertia)
 
     elbow_json = elbow_to_json(k_min, k_max, inertia_values)

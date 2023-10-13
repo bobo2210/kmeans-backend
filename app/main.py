@@ -34,7 +34,8 @@ async def kmeans_start(file: UploadFile,
                        tolerance: float = 0.0001,
                        init: str = "k-means++",
                        algorithm: str = "lloyd",
-                       centroids: str = None):
+                       centroids: str = None,
+                       normalization: str= None):
     """
     Uploads a json or csv file, performs k-means, and returns the id of the task
 
@@ -89,7 +90,7 @@ async def kmeans_start(file: UploadFile,
         except json.JSONDecodeError as exception:
             raise HTTPException(status_code=400, detail= str(exception)) from exception
 
-    error_message = check_parameter(centroids, number_runs, dataframe, k, k, init, algorithm)
+    error_message = check_parameter(centroids, number_runs, dataframe, k, k, init, algorithm, normalization)
 
     if error_message != "":
         raise HTTPException(status_code=400, detail= error_message)
@@ -108,7 +109,7 @@ async def kmeans_start(file: UploadFile,
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_thread = threading.Thread(target=run_kmeans_one_k, args=(
-        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids))
+        dataframe, task_id, tasks, k, number_runs, max_iterations, tolerance, init, algorithm, centroids, normalization))
     kmeans_thread.start()
 
     return {"TaskID": task_id}
@@ -177,7 +178,7 @@ async def elbow_start(file: UploadFile,
         except json.JSONDecodeError as exception:
             raise HTTPException(status_code=400, detail= str(exception)) from Exception
 
-    error_message = check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm)
+    error_message = check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm, normalization)
 
     if error_message != "":
         raise HTTPException(status_code=400, detail= error_message)
@@ -196,7 +197,7 @@ async def elbow_start(file: UploadFile,
 
     # Create a separate thread to run run_kmeans_one_k
     kmeans_elbow_thread = threading.Thread(target=run_kmeans_elbow, args=(
-        dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids))
+        dataframe, task_id, tasks, k_min, k_max, number_runs, max_iterations, tolerance, init, algorithm, centroids, normalization))
     kmeans_elbow_thread.start()
 
     return {"TaskID": task_id}

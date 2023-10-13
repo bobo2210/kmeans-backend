@@ -69,7 +69,7 @@ def read_file(file, filename):
         return dataframe
     return {"error": "Die hochgeladene Datei ist keine json, xlsx oder csv Datei."}
 
-def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm):
+def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algorithm, normalization):
     """
         checking the params for kmeans
     """
@@ -90,6 +90,9 @@ def check_parameter(centroids, number_runs, dataframe, k_min, k_max, init, algor
     if algorithm not in ("elkan","auto", "lloyd", "full"):
         error_message += ("The 'algorithm' parameter of KMeans must be a str among"
                          " ('elkan', 'auto' (deprecated), 'lloyd', 'full' (deprecated)).")
+    if normalization is not None and normalization not in("min-max", "z"):
+        error_message += ("The 'normalization' parameter must be None or a string among"
+                         " ('min-max' or 'z').")
 
     return error_message
 
