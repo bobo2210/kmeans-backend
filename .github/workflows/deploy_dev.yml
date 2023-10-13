@@ -66,8 +66,8 @@ jobs:
             --port=5000
             --vpc-connector=kmeans-vpc-connector
           env_vars: |
-            REDIS_URL=${{ secrets.REDIS_PORT }}
-            REDIS_PORT=${{ secrets.REDIS_URL }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
 
       # If required, use the Cloud Run url output in later steps
       - name: Show Output
