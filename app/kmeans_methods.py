@@ -42,6 +42,7 @@ def run_kmeans_one_k(redis_client,
 
     if dataframe is None or tasks[task_id]["status"] == "Bad Request":
         tasks[task_id]["status"] = "Bad Request"
+        redis_client.hset(task_id,'status',"Bad Request")
         return
 
     kmeans = None
