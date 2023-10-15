@@ -9,7 +9,7 @@ client = TestClient(app)
 
 # Sample JSON data for testing
 test_params = {
-    "k": 2,
+    "k": 3,
     "number_kmeans_runs": 5,
     "max_iterations": 300,
     "tolerance": 0.0001,

@@ -1,14 +1,15 @@
+# pylint: disable=too-many-locals
 """
 Module for k-means clustering methods.
 """
-
 import json
 from sklearn.cluster import KMeans
 from app.utils import dataframe_to_json_str, elbow_to_json
-from app.datacheck import data_check
+from app.datacheck import data_check, run_normalization, ohe
 
 # pylint: disable=inconsistent-return-statements
-def run_kmeans_one_k(dataframe,
+def run_kmeans_one_k(redis_client,
+                    dataframe,
                     task_id,
                     tasks,
                     k_value,
@@ -32,11 +33,16 @@ def run_kmeans_one_k(dataframe,
               If the uploaded file is not a CSV, an error message is returned.
     """
     #Dateicheck einfuegen
-    if tasks[task_id]["status"] != "Data prepared. Processing...":
-        tasks[task_id]["status"] = "Preparing Data..."
-        dataframe = data_check(dataframe, tasks, task_id, normalization)
+    if tasks[task_id]["status"] != "Data prepared. Processing":
+        cleaned_df = data_check(redis_client, dataframe, tasks, task_id)
+        dataframe = ohe(redis_client, cleaned_df,tasks, task_id)
 
-    if dataframe is None:
+        if normalization is not None:
+            dataframe = run_normalization(redis_client, dataframe,tasks, task_id, normalization)
+
+    if dataframe is None or tasks[task_id]["status"] == "Bad Request":
+        tasks[task_id]["status"] = "Bad Request"
+        redis_client.hset(task_id,'status',"Bad Request")
         return
 
     kmeans = None
@@ -48,8 +54,7 @@ def run_kmeans_one_k(dataframe,
             n_init=number_runs,
             max_iter=max_iterations,
             tol=tolerance,
-            algorithm=used_algorithm,
-            verbose=2)
+            algorithm=used_algorithm)
     elif initialisation == "centroids":
         # Instantiate sklearn's k-means using num_clusters clusters
         kmeans = KMeans(
@@ -58,29 +63,36 @@ def run_kmeans_one_k(dataframe,
                 n_init=number_runs,
                 max_iter=max_iterations,
                 tol=tolerance,
-                algorithm=used_algorithm,
-                verbose=2)
+                algorithm=used_algorithm)
     if kmeans is None:
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] += str(initialisation)
-        return
+        redis_client.hset(task_id,'message',str(initialisation))
+        redis_client.hset(task_id,'status',"Bad Request")
+        return None
+
     try:
         # execute k-means algorithm
         kmeans.fit(dataframe.values)
         # Update the task with the "completed" status and the results
         if tasks[task_id]["method"] == "one_k":
-            result_to_json = dataframe_to_json_str(dataframe, kmeans.labels_, kmeans.cluster_centers_)
+            result_to_json = dataframe_to_json_str(cleaned_df, kmeans.labels_, kmeans.cluster_centers_)
             json_string = json.loads(result_to_json)
             tasks[task_id]["json_result"] = json_string
+            redis_client.hset(task_id,"json_result",str(result_to_json))
+            redis_client.hset(task_id,"status","completed")
             tasks[task_id]["status"] = "completed"
         elif  tasks[task_id]["method"] == "elbow":
             return kmeans.inertia_
     except ValueError as exception:
         tasks[task_id]["status"] = "Bad Request"
         tasks[task_id]["message"] += str(exception)
+        redis_client.hset(task_id,'message',str(exception))
+        redis_client.hset(task_id,'status',"Bad Request")
 
-
-def run_kmeans_elbow(dataframe,
+# pylint: disable=too-many-locals
+def run_kmeans_elbow(redis_client,
+                        dataframe,
                         task_id,
                         tasks,
                         k_min,
@@ -101,7 +113,8 @@ def run_kmeans_elbow(dataframe,
     inertia_values = []
 
     for k_value in k_values:
-        inertia = run_kmeans_one_k(dataframe,
+        inertia = run_kmeans_one_k(redis_client,
+                                    dataframe,
                                     task_id,
                                     tasks,
                                     k_value,
@@ -118,3 +131,6 @@ def run_kmeans_elbow(dataframe,
     json_string = json.loads(elbow_json)
     tasks[task_id]["json_inertia"] = json_string
     tasks[task_id]["status"] = "completed"
+    tasks[task_id]["inertia_values"] = inertia_values
+    redis_client.hset(task_id,'inertia_values',str(elbow_json))
+    redis_client.hset(task_id,'status',"completed")

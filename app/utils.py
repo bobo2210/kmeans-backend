@@ -55,10 +55,16 @@ def read_file(file, filename):
 
         # Versuche, das Trennzeichen automatisch zu erkennen
         try:
-            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=None, engine='python')
+            # Versuche, das Trennzeichen automatisch zu erkennen
+            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=None, decimal = ',', engine='python', thousands=None)
         except pd.errors.ParserError:
-            # Wenn das automatische Erkennen fehlschlägt, verwende ';' als Fallback-Trennzeichen
-            dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=";", engine='python')
+            try:
+                # Versuch 2: CSV mit Komma als Dezimalzeichen
+                dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=";", engine='python', decimal=',')
+            except pd.errors.ParserError:
+                # Wenn das automatische Erkennen und beide Versuche fehlschlagen, verwende ';' als Fallback-Trennzeichen
+                dataframe = pd.read_csv(io.StringIO(csv_data, newline = ''), sep=",", engine='python', decimal='.')
+
         return dataframe
     if filename.endswith(".xlsx"):
         # Read the uploaded Excel file
