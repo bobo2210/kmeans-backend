@@ -1,18 +1,26 @@
-name: Deploy dev
+name: Deploy feature
 on:
   push:
     branches:  
-      - dev
+      - feature
     paths-ignore:
       - README.md
       - CHANGELOG.md # Should never be edited anyway
       - .gitignore
-      - .github/
+      - .github/**
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags' 
 
 env:
   PROJECT_ID: programmierprojekt-397609 # TODO: update Google Cloud project id
   GAR_LOCATION: europe-west1 # TODO: update Artifact Registry location
-  SERVICE: kmeans-backend-dev # TODO: update Cloud Run service name
+  SERVICE: kmeans-backend-feature # TODO: update Cloud Run service name
   REGION: europe-west1 # TODO: update Cloud Run service region.
 
 jobs:
@@ -66,8 +74,8 @@ jobs:
             --port=5000
             --vpc-connector=kmeans-vpc-connector
           env_vars: |
-            REDIS_URL=${{ secrets.REDIS_PORT }}
-            REDIS_PORT=${{ secrets.REDIS_URL }}
+            REDIS_HOST=${{ secrets.REDIS_URL }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
 
       # If required, use the Cloud Run url output in later steps
       - name: Show Output
