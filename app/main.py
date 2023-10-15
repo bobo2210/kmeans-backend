@@ -104,7 +104,7 @@ async def kmeans_start(file: UploadFile,
     # Create a unique task ID
     task_id = str(uuid.uuid4())
 
-    # Initialize the task with a "processing" status and an empty results list
+    # Initialize the task with a "processing" status and an empty results list.
     tasks[task_id] = {
         "status": "processing",
         "method": "one_k",
