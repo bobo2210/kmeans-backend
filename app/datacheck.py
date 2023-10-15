@@ -116,8 +116,8 @@ def run_normalization(redis_client, dataframe,tasks, task_id, normalization):
         return None
 
 
-def contains_numbers_and_letters(column):
-    """
-    Checks if a column contains numbers and letters 
-    """
-    return any(str(c).isalpha() for c in column) and any(str(c).isdigit() for c in column)
+#def contains_numbers_and_letters(column):
+#    """
+#    Checks if a column contains numbers and letters 
+#    """
+#    return any(str(c).isalpha() for c in column) and any(str(c).isdigit() for c in column)
