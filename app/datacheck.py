@@ -28,21 +28,23 @@ def data_check(redis_client, dataframe,tasks, task_id):
         redis_client.hset(task_id,'message',tasks[task_id]["message"])
 
         # Löscht alle Zeilen mit nicht alphanumerischen Werten
-        for column in cleaned_df.columns:
-            #cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
-            cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: isinstance(x, (int, float)) or str(x).isalnum())]
-            tasks[task_id]["message"] += "Removed rows with non-alphanumeric values. "
-            redis_client.hset(task_id,'message',tasks[task_id]["message"])
+        #for column in cleaned_df.columns:
+         #   #cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: str(x).isalnum())]
+         #   cleaned_df = cleaned_df[cleaned_df[column].apply(lambda x: isinstance(x, (int, float)) or str(x).isalnum())]
+         #   tasks[task_id]["message"] += "Removed rows with non-alphanumeric values. "
+         #   redis_client.hset(task_id,'message',tasks[task_id]["message"])
 
         #löscht alle Zeilen, die Buchstaben UND Zanhlen enthalten
         # Iteriert über die Spalten und erstellt eine Liste der zu löschenden Spalten
         columns_to_drop = [col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])]
         # Löscht die ausgewählten Spalten
         cleaned_df = cleaned_df.drop(columns=columns_to_drop)
+        
         if columns_to_drop:
             tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
             redis_client.hset(task_id,'message',tasks[task_id]["message"])
 
+        cleaned_df = cleaned_df.reset_index(drop=True)
         return cleaned_df
     except Exception as exception:
         # Wenn ein Fehler auftritt, wird die Nachricht an `tasks[task_id]` angehangen.
@@ -74,6 +76,7 @@ def ohe(redis_client, cleaned_df,tasks, task_id):
 
         tasks[task_id]["message"] += "One-Hot encoded. "
         redis_client.hset(task_id,'message',tasks[task_id]["message"])
+        ohe_df = df.reset_index(drop=True)
         return ohe_df
     except Exception as exception:
         # Wenn ein Fehler auftritt, wird die Nachricht an `tasks[task_id]` angehangen.
