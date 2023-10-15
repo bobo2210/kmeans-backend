@@ -36,13 +36,13 @@ def data_check(redis_client, dataframe,tasks, task_id):
 
         #löscht alle Zeilen, die Buchstaben UND Zanhlen enthalten
         # Iteriert über die Spalten und erstellt eine Liste der zu löschenden Spalten
-        columns_to_drop = [col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])]
+        #columns_to_drop = [col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])]
         # Löscht die ausgewählten Spalten
-        cleaned_df = cleaned_df.drop(columns=columns_to_drop)
+        #cleaned_df = cleaned_df.drop(columns=columns_to_drop)
         
-        if columns_to_drop:
-            tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
-            redis_client.hset(task_id,'message',tasks[task_id]["message"])
+        #if columns_to_drop:
+         #   tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
+         #   redis_client.hset(task_id,'message',tasks[task_id]["message"])
 
         cleaned_df = cleaned_df.reset_index(drop=True)
         return cleaned_df
@@ -76,7 +76,7 @@ def ohe(redis_client, cleaned_df,tasks, task_id):
 
         tasks[task_id]["message"] += "One-Hot encoded. "
         redis_client.hset(task_id,'message',tasks[task_id]["message"])
-        ohe_df = df.reset_index(drop=True)
+
         return ohe_df
     except Exception as exception:
         # Wenn ein Fehler auftritt, wird die Nachricht an `tasks[task_id]` angehangen.
