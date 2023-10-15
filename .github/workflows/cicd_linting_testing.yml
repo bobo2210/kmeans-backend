@@ -6,7 +6,6 @@ on:
       - README.md
       - CHANGELOG.md # Should never be edited anyway
       - .gitignore
-      - .github/**
 
 jobs:
   linting_testing:
