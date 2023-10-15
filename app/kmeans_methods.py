@@ -5,7 +5,7 @@ Module for k-means clustering methods.
 import json
 from sklearn.cluster import KMeans
 from app.utils import dataframe_to_json_str, elbow_to_json
-from app.datacheck import data_check
+from app.datacheck import data_check, run_normalization, ohe
 
 # pylint: disable=inconsistent-return-statements
 def run_kmeans_one_k(redis_client,
@@ -34,9 +34,14 @@ def run_kmeans_one_k(redis_client,
     """
     #Dateicheck einfuegen
     if tasks[task_id]["status"] != "Data prepared. Processing":
-        dataframe = data_check(redis_client, dataframe, tasks, task_id, normalization)
+        cleaned_df = data_check(redis_client, dataframe, tasks, task_id)
+        dataframe = ohe(redis_client, cleaned_df,tasks, task_id)
 
-    if dataframe is None:
+        if normalization is not None:
+            dataframe = run_normalization(redis_client, dataframe,tasks, task_id, normalization)
+
+    if dataframe is None or tasks[task_id]["status"] == "Bad Request":
+        tasks[task_id]["status"] = "Bad Request"
         return
 
     kmeans = None
@@ -70,7 +75,7 @@ def run_kmeans_one_k(redis_client,
         kmeans.fit(dataframe.values)
         # Update the task with the "completed" status and the results
         if tasks[task_id]["method"] == "one_k":
-            result_to_json = dataframe_to_json_str(dataframe, kmeans.labels_, kmeans.cluster_centers_)
+            result_to_json = dataframe_to_json_str(cleaned_df, kmeans.labels_, kmeans.cluster_centers_)
             json_string = json.loads(result_to_json)
             tasks[task_id]["json_result"] = json_string
             redis_client.hset(task_id,"json_result",str(result_to_json))
