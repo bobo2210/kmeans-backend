@@ -108,7 +108,6 @@ async def kmeans_start(file: UploadFile,
     tasks[task_id] = {
         "status": "processing",
         "method": "one_k",
-        "Datenpunkte": dataframe,
         "json_result": {},
         "json_inertia": {},
         "message": ""}
@@ -203,7 +202,6 @@ async def elbow_start(file: UploadFile,
     tasks[task_id] = {
         "status": "processing",
         "method": "elbow",
-        "Datenpunkte": dataframe,
         "json_result": {},
         "json_inertia": {},
         "message": ""}
