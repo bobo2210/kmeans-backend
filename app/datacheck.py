@@ -39,7 +39,6 @@ def data_check(redis_client, dataframe,tasks, task_id):
         #columns_to_drop = [col for col in cleaned_df.columns if contains_numbers_and_letters(cleaned_df[col])]
         # Löscht die ausgewählten Spalten
         #cleaned_df = cleaned_df.drop(columns=columns_to_drop)
-        
         #if columns_to_drop:
          #   tasks[task_id]["message"] += "Removed columns with inconsistent data(letters and numbers). "
          #   redis_client.hset(task_id,'message',tasks[task_id]["message"])
