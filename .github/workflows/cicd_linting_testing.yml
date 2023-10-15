@@ -55,7 +55,7 @@ jobs:
 
       - name: Unittesting code
         run: |
-          python -m pytest --cov=app  --cov-report html:coverage-report tests
+          python -m pytest --cov=app tests
 
 
       - name: Upload coverage report
@@ -63,3 +63,4 @@ jobs:
         with:
             name: coverage
             path: coverage-report
+            archive-format: none
