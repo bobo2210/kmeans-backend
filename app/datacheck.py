@@ -82,7 +82,6 @@ def ohe(redis_client, cleaned_df,tasks, task_id):
         redis_client.hset(task_id,'status',"Bad Request")
         redis_client.hset(task_id,'message',tasks[task_id]["message"])
         return None
-    
 
 def run_normalization(redis_client, dataframe,tasks, task_id, normalization):
     """
