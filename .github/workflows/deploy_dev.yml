@@ -7,7 +7,7 @@ on:
       - README.md
       - CHANGELOG.md # Should never be edited anyway
       - .gitignore
-      - .github/**
+      - .github/
 
 env:
   PROJECT_ID: programmierprojekt-397609 # TODO: update Google Cloud project id
