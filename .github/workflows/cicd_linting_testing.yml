@@ -63,4 +63,3 @@ jobs:
         with:
             name: coverage
             path: coverage-report
-            archive-format: none
