@@ -1,8 +1,15 @@
 """
     Testing kmeans methods with pylint
 """
+import os
+import redis
 import pandas as pd
 from app.kmeans_methods import run_kmeans_one_k
+
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+
+redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 # pylint: disable=unused-variable
 def test_valid_input_kmeans_plusplus():
@@ -24,7 +31,7 @@ def test_valid_input_kmeans_plusplus():
         "message": ""}
 
     task_id = 1
-    result = run_kmeans_one_k(data, task_id, tasks, k_value=2,
+    result = run_kmeans_one_k(redis_client,data, task_id, tasks, k_value=2,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
                               initialisation="k-means++", used_algorithm="auto")
     assert tasks[task_id]["status"] == "completed"
@@ -50,7 +57,7 @@ def test_valid_input_random_initialization():
         "message": ""}
 
     task_id = 1
-    result = run_kmeans_one_k(data, task_id, tasks, k_value=3,
+    result = run_kmeans_one_k(redis_client,data, task_id, tasks, k_value=3,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
                               initialisation="random", used_algorithm="full")
     assert tasks[task_id]["status"] == "completed"
@@ -77,7 +84,7 @@ def test_valid_input_centroids_initialization():
         "message": ""}
 
     task_id = 1
-    result = run_kmeans_one_k(data, task_id, tasks, k_value=2,
+    result = run_kmeans_one_k(redis_client,data, task_id, tasks, k_value=2,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
                               initialisation="centroids", used_algorithm="auto",
                               centroids_start=centroids_start)
@@ -104,7 +111,7 @@ def test_invalid_initialization_method():
         "message": ""}
 
     task_id = 1
-    result = run_kmeans_one_k(data, task_id, tasks, k_value=2,
+    result = run_kmeans_one_k(redis_client,data, task_id, tasks, k_value=2,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
                               initialisation="invalid_method", used_algorithm="full")
     assert tasks[task_id]["status"] == "Bad Request"
@@ -129,7 +136,7 @@ def test_k_too_high():
         "message": ""}
 
     task_id = 1
-    result = run_kmeans_one_k(data, task_id, tasks, k_value=8,
+    result = run_kmeans_one_k(redis_client,data, task_id, tasks, k_value=8,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
                               initialisation="random", used_algorithm="full")
     assert tasks[task_id]["status"] == "Bad Request"
@@ -154,7 +161,7 @@ def test_invalid_number_runs():
         "message": ""}
 
     task_id = 1
-    result = run_kmeans_one_k(data, task_id, tasks, k_value=8,
+    result = run_kmeans_one_k(redis_client,data, task_id, tasks, k_value=8,
                               number_runs="a", max_iterations=100, tolerance=1e-4,
                               initialisation="random", used_algorithm="full")
     assert tasks[task_id]["status"] == "Bad Request"
@@ -179,7 +186,7 @@ def test_invalid_used_algorithm():
         "message": ""}
 
     task_id = 1
-    result = run_kmeans_one_k(data, task_id, tasks, k_value=2,
+    result = run_kmeans_one_k(redis_client,data, task_id, tasks, k_value=2,
                               number_runs=5, max_iterations=100, tolerance=1e-4,
                               initialisation="k-means++", used_algorithm="false")
     assert tasks[task_id]["status"] == "Bad Request"
