@@ -45,6 +45,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pylint
           pip install pytest
+          pip install pytest-cov
           pip install httpx
           pip install -r requirements.txt
           
@@ -54,4 +55,11 @@ jobs:
 
       - name: Unittesting code
         run: |
-          python -m pytest tests
+          python -m pytest --cov=app  --cov-report html:coverage-report tests
+
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+            name: coverage
+            path: coverage-report
