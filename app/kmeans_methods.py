@@ -5,7 +5,7 @@ Module for k-means clustering methods.
 import json
 from sklearn.cluster import KMeans
 from app.utils import dataframe_to_json_str, elbow_to_json
-from app.datacheck import data_check
+from app.datacheck import data_check, run_normalization, ohe
 
 # pylint: disable=inconsistent-return-statements
 def run_kmeans_one_k(redis_client,
@@ -38,10 +38,10 @@ def run_kmeans_one_k(redis_client,
         dataframe = ohe(redis_client, cleaned_df,tasks, task_id)
 
         if normalization is not None:
-            dataframe = normalization(redis_client, dataframe,tasks, task_id, normalization)
+            dataframe = run_normalization(redis_client, dataframe,tasks, task_id, normalization)
 
-    if dataframe is None or task[task_id]["status"] == "Bad Request":
-        task[task_id]["status"] = "Bad Request"
+    if dataframe is None or tasks[task_id]["status"] == "Bad Request":
+        tasks[task_id]["status"] = "Bad Request"
         return
 
     kmeans = None

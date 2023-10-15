@@ -18,7 +18,6 @@ def data_check(redis_client, dataframe,tasks, task_id):
     Returns:
         cleaned_df (pd.DataFrame): The cleaned CSV data.
     """
-    ohe=True
 
     try:
         tasks[task_id]["status"] = "Data Preparation"
@@ -85,16 +84,16 @@ def ohe(redis_client, cleaned_df,tasks, task_id):
         return None
     
 
-def normalization(redis_client, dataframe,tasks, task_id, normalization):
+def run_normalization(redis_client, dataframe,tasks, task_id, normalization):
     """
     Normalisierung der Daten
     """
     try:
         if normalization == 'z':
-                # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
-                numerical_columns = dataframe.select_dtypes(include=['int', 'float']).columns
-                scaler = StandardScaler()
-                dataframe[numerical_columns] = scaler.fit_transform(dataframe[numerical_columns])
+            # Skalierung der numerischen Spalten (Standardisierung - Z-Transformation)
+            numerical_columns = dataframe.select_dtypes(include=['int', 'float']).columns
+            scaler = StandardScaler()
+            dataframe[numerical_columns] = scaler.fit_transform(dataframe[numerical_columns])
 
         if normalization == 'min-max':
             # Skalierung der numerischen Spalten (Min-Max-Skalierung)
