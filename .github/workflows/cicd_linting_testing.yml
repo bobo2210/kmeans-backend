@@ -2,6 +2,11 @@ name: Linting, Testing
 
 on: 
   push:
+    branches:
+      - '*'
+      - '!main'
+      - '!test'
+      - '!dev'
     paths-ignore:
       - README.md
       - CHANGELOG.md # Should never be edited anyway
@@ -43,12 +48,6 @@ jobs:
           pip install httpx
           pip install -r requirements.txt
           
-      - name: Wait for Redis to start
-        run: |
-          while ! nc -z localhost 6379; do
-            sleep 1
-          done
-
       - name: Analysing the code with pylint
         run: |
           python -m pylint app tests
