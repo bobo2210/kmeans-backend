@@ -7,7 +7,6 @@ on:
       - README.md
       - CHANGELOG.md # Should never be edited anyway
       - .gitignore
-      - .github/**
 
 env:
   PROJECT_ID: programmierprojekt-397609 # TODO: update Google Cloud project id
@@ -63,7 +62,7 @@ jobs:
           # NOTE: If using a pre-built image, update the image name here
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}
           flags: |
-            '--port=5000'
+            --port=5000
             --vpc-connector=kmeans-vpc-connector
           env_vars: |
             REDIS_HOST=${{ secrets.REDIS_HOST }}
