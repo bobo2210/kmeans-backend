@@ -33,9 +33,11 @@ def run_kmeans_one_k(redis_client,
               If the uploaded file is not a CSV, an error message is returned.
     """
     #Dateicheck einfuegen
-    if tasks[task_id]["status"] != "Data prepared. Processing":
+    if tasks[task_id]["method"] == "one_k":
         cleaned_df = data_check(redis_client, dataframe, tasks, task_id)
         dataframe = ohe(redis_client, cleaned_df,tasks, task_id)
+        tasks[task_id]["status"] = "Data prepared. Processing"
+        redis_client.hset(task_id,'status',"Data prepared. Processing")
 
         if normalization is not None:
             dataframe = run_normalization(redis_client, dataframe,tasks, task_id, normalization)
@@ -111,6 +113,14 @@ def run_kmeans_elbow(redis_client,
     k_min = max(k_min, 1)
     k_values = range(k_min, k_max + 1)
     inertia_values = []
+
+    cleaned_df = data_check(redis_client, dataframe, tasks, task_id)
+    dataframe = ohe(redis_client, cleaned_df,tasks, task_id)
+    tasks[task_id]["status"] = "Data prepared. Processing"
+    redis_client.hset(task_id,'status',"Data prepared. Processing")
+
+    if normalization is not None:
+        dataframe = run_normalization(redis_client, dataframe,tasks, task_id, normalization)
 
     for k_value in k_values:
         inertia = run_kmeans_one_k(redis_client,
