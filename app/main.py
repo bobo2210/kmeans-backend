@@ -48,7 +48,7 @@ async def kmeans_start(file: UploadFile,
     Args:
         Only k and file are mandatory
 
-        file (UploadFile): The uploaded json or csv file.
+        file (UploadFile): The uploaded json, csv or xlsx file.
 
         k (int): The number of clusters
 
@@ -71,7 +71,7 @@ async def kmeans_start(file: UploadFile,
 
         Centroids JSON string containing the array of arrays of the initial centroid positions
 
-        normalization string containing the 
+        normalization (str) (None, z, min-max): The normalization method to be used on the data
 
     Returns:
         dict: The Id of the task
@@ -85,8 +85,11 @@ async def kmeans_start(file: UploadFile,
     else:
         raise HTTPException(status_code=400, detail= result)
 
-    if number_kmeans_runs.isdigit():
-        number_runs = int(number_kmeans_runs)
+    if not isinstance(number_kmeans_runs, int):
+        if number_kmeans_runs.isdigit():
+            number_runs = int(number_kmeans_runs)
+        else:
+            number_runs = number_kmeans_runs
     else:
         number_runs = number_kmeans_runs
 
@@ -143,7 +146,7 @@ async def elbow_start(file: UploadFile,
     Args:
         Only k and file are mandatory
 
-        file (UploadFile): The uploaded json or csv file.
+        file (UploadFile): The uploaded json, csv or xlsx file.
 
         k_min (int): The lowest number of clusters on which kmeans is supposed performed in order to evaluate its inertia
 
@@ -169,6 +172,8 @@ async def elbow_start(file: UploadFile,
 
         Centroids JSON string containing the array of arrays of the initial centroid positions
 
+        normalization (str) (None, z, min-max): The normalization method to be used on the data
+
     Returns:
         dict: The Id of the task
               If the uploaded file is not a json or csv, an error message is returned.
@@ -179,8 +184,11 @@ async def elbow_start(file: UploadFile,
     else:
         raise HTTPException(status_code=400, detail= result)
 
-    if number_kmeans_runs.isdigit():
-        number_runs = int(number_kmeans_runs)
+    if not isinstance(number_kmeans_runs, int):
+        if number_kmeans_runs.isdigit():
+            number_runs = int(number_kmeans_runs)
+        else:
+            number_runs = number_kmeans_runs
     else:
         number_runs = number_kmeans_runs
 
