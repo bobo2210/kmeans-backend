@@ -14,11 +14,25 @@ test_params = {
     "max_iterations": 300,
     "tolerance": 0.0001,
     "init": "k-means++",
-    "algorithm": "lloyd"
+    "algorithm": "lloyd",
+    "normalization":"min-max"
+}
+
+# Sample JSON data for testing
+test_params_elbow = {
+    "k_min": 1,
+    "k_max": 5,
+    "number_kmeans_runs": 5,
+    "max_iterations": 300,
+    "tolerance": 0.0001,
+    "init": "k-means++",
+    "algorithm": "lloyd",
+    "normalization":"z"
 }
 
 # Pfad zur Datei, die du senden möchtest
 TESTFILEPATH = "tests/kmeans_test.json"
+CSVFILEPATH = "tests/autoscout24-100.csv"
 WRONGFILEPATH = "tests/kmeans_test.error"
 
 # Überprüfe den Dateipfad
@@ -54,6 +68,44 @@ def test_upload_json_and_check_task_status():
 
     # # Check if the task status is "processing" initially
     # assert response_data["status"] == "processing"
+
+
+def test_upload_csv_and_check_task_status():
+    """test upload valid file and check response"""
+    # Test uploading a JSON file
+    with open(CSVFILEPATH, "rb") as file:
+        response = client.post("/elbow/",params=test_params_elbow,files={"file": file})
+
+    # Check if the response status code is 200 OK
+    assert response.status_code == 200
+
+    # Parse the response JSON
+    response_data = response.json()
+
+    # Check if the response contains a task ID
+    assert "TaskID" in response_data
+
+    task_id = response_data["TaskID"]
+
+    # Check the status of the task
+    response = client.get(f"/kmeans/status/{task_id}")
+
+    # Check if the response status code is 200 OK
+    assert response.status_code == 200
+
+     # Poll for task completion
+    while True:
+        response = client.get(f"/kmeans/status/{task_id}")
+        response_data = response.json()
+        if response_data["status"] == "completed":
+            break
+
+    # Get task result
+    response = client.get(f"/kmeans/result/{task_id}")
+
+    # Check if the response status code is 200 OK
+    assert response.status_code == 200
+
 
 def test_upload_invalid_file():
     """Test upload invalid file"""

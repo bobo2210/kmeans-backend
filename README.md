@@ -1,3 +1,60 @@
+# Projektbeschreibung
+Dieses Projekt bietet eine Python-Implementierung von k-means-Clustering-Algorithmen mit einer RESTful API-Schnittstelle mit der FastAPI. Das Projekt bietet zwei Hauptendpunkte: `kmeans` und `elbow`. Mit `kmeans` können Sie k-means-Clustering mit verschiedenen Parametern durchführen, während `elbow` verwendet wird, um die optimale Anzahl von Clustern mithilfe der "Elbow-Methode" zu ermitteln.
+
+## Inhaltsverzeichnis
+- [Voraussetzungen](#voraussetzungen)
+- [Herunterladen des Projektes](#herunterladen-des-projektes)
+- [Lokale Redis-Datenbank](#lokale-redis-datenbank)
+- [Lokale Bereitstellung des Backends](#lokale-bereitstellung-des-backends)
+- [API-Endpoints](#api-endpoints)
+
+## `Voraussetzungen`
+- Git: Zum Herunterladen des Projektes
+- Docker: Zum Betreiben der Komponenten als Docker-Container
+- Python (3.10): Zum lokalen Betrieb des Backends (nur bei lokaler Installation des Backends benötigt)
+
+## `Herunterladen des Projektes`
+Um das Projekt herunterzuladen, sind folgende Befehle notwendig.
+``` bash
+git clone https://github.com/bobo2210/kmeans-backend.git
+cd kmeans-backend/
+```
+
+## `Lokale Redis-Datenbank`
+Das Backend in der Cloud arbeitet mit einer Redis-Datenbank im Hintergrund. Um das Backend lokal laufen zu lassen, muss zunächst ein Docker-Container gestartet werden, welcher eine Redis-DB hostet.
+``` bash
+docker run -d --name redis-stack-server -p 6379:6379 redis/redis-stack-server:latest
+```
+Nach dem Ausführen des Befehls läuft nun eine Redis-Datenbank im Hintergrund, welche vom Backend genutzt werden kann. Um direkt auf die Redis-Datenbank zugreifen zu können, ist das Paket `redis` nötig.
+
+## Lokale Bereitstellung des Backends
+Es gibt 2 Wege das Backend lokal zu testen. Entweder lässt man das Backend in einer virtuellen Python-Umgebung lokal laufen oder man erstellt sich einen Docker-Container und betreibt diesen.
+### `Lokale Installation des Backends`
+Um diese API nutzen zu können, muss Python 3.11 installiert sein. Wenn dies nicht der Fall ist, mache dies erst, ansonsten fahre fort:
+``` bash
+python3 -m venv .venv # Erstellung virtuelle Python-Umgebung
+source .venv/bin/activate # Aktivierung der Umgebung
+pip3 install -r requirements.txt # Installation Python-Pakete
+uvicorn app.main:app --host 0.0.0.0 --port 5000 # Start der API
+```
+Jetzt kannst du den Swagger der FastAPI über 0.0.0.0:5000/docs erreichen.
+
+### `Lokaler Docker-Container des Backends`
+Um das Backend in einem lokalen Docker-Container bereitzustellen, sind folgende Schritte notwendig
+``` bash
+# IP-Adresse des Redis-Containers herausfinden
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' redis-stack-server
+
+#  Docker-Image erstellen
+docker build -t "kmeans-backend" .
+
+# Erstellen und Starten des Docker-Container
+# (IP_ADDRESS durch die ermittelte IP des Redis-Servers austauschen)
+docker run -i -e REDIS_HOST="IP_ADDRESS" -e REDIS_PORT="6379" -p 5000:5000 \
+    --name kmeans-backend kmeans-backend:latest  
+```
+Jetzt kannst du den Swagger der FastAPI über 0.0.0.0:5000/docs erreichen.
+
 ## `API-Endpoints`
 ### `POST /kmeans/`
 
